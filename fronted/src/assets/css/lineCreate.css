@@ -1,0 +1,46 @@
+.line-create {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Ensure content doesn't overflow the container */
+}
+
+.line-create h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px; /* Adjust the margin as needed */
+}
+
+.line-create label {
+    font-weight: bold;
+    margin-bottom: 8px; /* Adjust the margin as needed for better spacing */
+}
+
+.line-create input {
+    padding: 10px;
+    margin-bottom: 15px; /* Keep the same or adjust as needed */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.line-create button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.line-create button:hover {
+    background-color: #0056b3;
+}

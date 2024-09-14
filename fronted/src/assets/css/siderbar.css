@@ -1,0 +1,253 @@
+.menu-box {
+    width: 120px;
+    height: 100vh;
+    background-color: #22243a;
+    /*border-radius: 30px;*/
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+    /* 添加过渡 */
+    /*transition: all .2s ease-out;*/
+    overflow: hidden;
+    margin-right: auto;
+    z-index: 1000;
+}
+
+/*.menu-box:hover {*/
+/*    width: 120px;*/
+/*    border-radius: 60px;*/
+/*}*/
+
+.menu-box:hover>ul>li p {
+    display: block;
+}
+
+.emotion-box {
+    width: 100%;
+    text-align: center;
+    margin: 10px auto;
+}
+
+#emotion1,
+#emotion2 {
+    width: 30px;
+    height: 30px;
+    animation: jitter .3s linear forwards;
+
+}
+
+#emotion2 {
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.menu-box:hover #emotion1 {
+    display: none;
+}
+
+.menu-box:hover #emotion2 {
+    display: block;
+}
+
+ul {
+    width: 100%;
+    height: 75%;
+}
+
+li {
+    list-style: none;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+li> {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    text-decoration: none;
+    user-select: none;
+}
+
+li:hover {
+    background-color: #343850;
+    cursor: pointer;
+}
+
+li:hover .content,
+li:hover img {
+    color: #fff;
+}
+
+li:hover img {
+    animation: jitter .3s linear forwards;
+}
+
+.content {
+    padding-left: 5px;
+    color: #fff;
+    white-space: nowrap;
+    transition: all .2s ease-out;
+}
+
+.table img {
+    width: 20px;
+    height: 20px;
+}
+
+#router {
+    display: flex;
+    height: 50px;
+    align-items:center;
+    justify-content: center;
+
+}
+
+@keyframes jitter {
+    0% {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    50% {
+        transform: scale(0.8) rotate(-10deg);
+    }
+
+    0% {
+        transform: scale(1.0) rotate(0deg);
+    }
+}
+
+
+/* sidebar */
+
+/*.sidebar{*/
+
+/*    position: absolute;*/
+/*    top:0;*/
+/*    left:0;*/
+
+/*    !* 100%的窗口宽度 *!*/
+/*    width: 300px;*/
+/*}*/
+
+/*#checkbox{*/
+/*    !* 隐藏复选框 *!*/
+/*    display: none;*/
+/*}*/
+
+/*.sidebar label{*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    left: 70px;*/
+/*    width: 100%;*/
+/*    height: 43px;*/
+/*    font-size: 30px;*/
+/*    color: #5a738e;*/
+/*    background-color: #ededed;*/
+/*    padding-left: 20px;*/
+/*    border: 1px solid #d9dee4;*/
+/*    !* 鼠标放上变小手 *!*/
+/*    cursor: pointer;*/
+/*    !* 加上动画过渡 *!*/
+/*    transition: all 0.5s;*/
+/*}*/
+
+/*.sidebar ul{*/
+/*    width: 70px;*/
+/*    !* 100%的窗口高度 *!*/
+/*    height: 100vh;*/
+/*    background-color: #2a3f54;*/
+/*    transition: all 0.5s;*/
+/*    !* 溢出隐藏 *!*/
+/*    overflow: hidden;*/
+/*}*/
+
+/*.sidebar ul li {*/
+/*    height: 70px;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.sidebar ul li:first-child{*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*    padding: 0 10px;*/
+/*}*/
+/*.sidebar ul li:first-child img{*/
+/*    width: 50px;*/
+/*    height: 50px;*/
+/*    border-radius: 50%;*/
+/*}*/
+
+/*.sidebar ul li:first-child span{*/
+/*    color: #fff;*/
+/*    !* 文字禁止换行 *!*/
+/*    white-space: nowrap;*/
+/*    padding-left: 10px;*/
+/*    !* 先把文字隐藏 *!*/
+/*    display: none;*/
+/*}*/
+
+/*.sidebar ul li a{*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*    !* 垂直排列 *!*/
+/*    flex-direction: column;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    color: #d1d1d1;*/
+/*    !* 去掉下划线 *!*/
+/*    text-decoration: none;*/
+/*}*/
+
+/*.sidebar ul li a i{*/
+/*    font-size: 25px;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.sidebar ul li a span{*/
+/*    font-size: 12px;*/
+/*    white-space: nowrap;*/
+/*}*/
+
+/*.sidebar ul li a:hover{*/
+/*    color: #fff;*/
+/*    background-color: #35495d;*/
+/*}*/
+
+/*!* :checked选择器是判断复选框是否被选中 *!*/
+/*!* +是相邻兄弟选择器，找到input的下一个兄弟label *!*/
+/*.sidebar input:checked + label{*/
+/*    left: 200px;*/
+/*}*/
+
+/*!* ~也是兄弟选择器，但它可以找到隔了几代的兄弟 *!*/
+/*.sidebar input:checked ~ ul{*/
+/*    width: 200px;*/
+/*}*/
+
+/*.sidebar input:checked ~ ul li:first-child{*/
+/*    !* 将居中改为开头对齐 *!*/
+/*    justify-content: flex-start;*/
+/*}*/
+
+/*.sidebar input:checked ~ ul li:first-child span{*/
+/*    !* 文字显示 *!*/
+/*    display: block;*/
+/*}*/
+
+/*.sidebar input:checked ~ul li a{*/
+/*    flex-direction: row;*/
+/*    justify-content: flex-start;*/
+/*}*/
+
+/*.sidebar input:checked ~ ul li a i{*/
+/*    font-size: 18px;*/
+/*    margin: 0 15px 0 30px;*/
+/*}*/
+/*.sidebar input:checked ~ul li a span{*/
+/*    font-size: 14px;*/
+/*}*/
+
+
