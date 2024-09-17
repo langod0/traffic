@@ -136,27 +136,7 @@ func Register(c *gin.Context) {
 	fmt.Println(newuer)
 	Db.Create(&newuer)
 }
-func FindStationLine(c *gin.Context) {
-	data := make(map[string]any)
-	c.BindJSON(&data)
-	ques := data["name"].(string)
-	res := SubwayLine{}
-	err := Db.Where("name = ? ", ques).First(&res).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "地铁线不存在",
-		})
-	}
-	//var result []SubwayLine
-	Db.Model(&SubwayLine{}).Preload("SubwayStations.Subwaylines").Where("name = ?", ques).Find(&res)
-	//jsonr, _ := json.Marshal(&result)
-	c.JSON(http.StatusOK, gin.H{
-		"code":     200,
-		"num":      len(res.SubwayStations),
-		"Stations": res.SubwayStations,
-	})
-}
+
 func update() {
 
 }

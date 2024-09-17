@@ -19,7 +19,13 @@ func main() {
 	DBInit()
 	ServeInit()
 	//defer F.Close()
+	func() {
+		dr := Account{Name: "林禄创", StaffId: "R209980"}
+		Db.Model(&Account{}).First(&dr)
 
+		tr := Train{ID: "1"}
+		Db.Model(&tr).Association("Drivers").Append(&dr)
+	}()
 	err := R.Run(":7234")
 	if err != nil {
 		println("Error: ", err)

@@ -24,17 +24,27 @@ type Account struct {
 	StaffId  string `gorm:"type:varchar(20);unique;comment:'工号'" json:"staff_id" binding:"required"`
 	Post     string `gorm:"type:varchar(20);comment:'职位'" json:"post" binding:"required"`
 	Sex      string `gorm:"type:varchar(6);default:'male'comment:'性别'" json:"sex" binding:"required"`
+	TrainId  string `gorm:"type:varchar(30); comment:'所属列车编号'" json:"train_id" binding:"required"`
 	gorm.Model
 }
+type Train struct {
+	ID       string    `gorm:"type:varchar(30);not null;primaryKey;unique;comment:'列车编号'" json:"id" binding:"required"`
+	Drivers  []Account `gorm:"hasmany:train_drivers;foreignkey:StaffId;references:ID"`
+	Capacity uint      `gorm:"type:int" json:"capacity" binding:"required"`
+}
 
+func (a *Train) String() string {
+	return "train"
+}
 func (a *Account) TableName() string {
 	return "account"
 }
 
 type SubwayLine struct {
-	LineId         uint            `gorm:"type:int;not null;unique;primary key;" json:"line_id" binding:"required"`
-	Name           string          `gorm:"type:varchar(20);not null;" json:"name" binding:"required"`
-	Trains         uint            `gorm:"type:int;" json:"trains" binding:"required"`
+	LineId uint    `gorm:"type:int;not null;unique;primary key;" json:"line_id" binding:"required"`
+	Name   string  `gorm:"type:varchar(20);not null;" json:"name" binding:"required"`
+	Trains []Train `gorm:"hasmany:Subwayline_trains;foreignkey:ID;references:LineId"  binding:"required"`
+
 	SubwayStations []SubwayStation `gorm:"many2many:subway_station_subwayline;foreignKey:LineId;References:ID" json:"subway_stations"`
 }
 type SubwayStation struct {
@@ -68,7 +78,7 @@ func DBInit() {
 	sqlDB.SetMaxOpenConns(100)
 	//  设置了连接可复用的最大时间。
 	sqlDB.SetConnMaxLifetime(10 * time.Second) // 10秒钟
-	Db.AutoMigrate(&Account{}, SubwayStation{}, SubwayLine{})
+	Db.AutoMigrate(&Account{}, SubwayStation{}, SubwayLine{}, Train{})
 	if !Db.Migrator().HasTable(&Account{}) {
 		os.Exit(17)
 	}
