@@ -2,7 +2,6 @@ package request
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -30,7 +29,7 @@ func Login(c *gin.Context) {
 	//c.Request.
 	if len(data["staff_id"].(string)) == 0 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    422,
+			"code":    0,
 			"message": "用户名非法",
 		})
 		//c.Redirect(http.StatusFound, "/login")
@@ -41,7 +40,7 @@ func Login(c *gin.Context) {
 	err := Db.First(&is).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    500,
+			"code":    0,
 			"message": "账号或密码错误",
 		})
 		return
@@ -49,14 +48,14 @@ func Login(c *gin.Context) {
 	isPassword := bcrypt.CompareHashAndPassword([]byte(is.Password), []byte(data["password"].(string)))
 	if isPassword != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    500,
+			"code":    0,
 			"message": "账号或密码错误",
 		})
 		return
 	}
 	//c.SetCookie(is.Name)
 	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
+		"code": 1,
 	})
 	//c.Redirect(http.StatusOK, "/user/"+is.Name)
 }
@@ -77,7 +76,7 @@ func Register(c *gin.Context) {
 
 	if !Rule_name.MatchString(data.Name) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    422,
+			"code":    0,
 			"message": "用户名非法",
 		})
 		//c.Redirect(http.StatusFound, "/register")
@@ -85,14 +84,14 @@ func Register(c *gin.Context) {
 	}
 	if !Rule_password.MatchString(data.Password) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    422,
+			"code":    0,
 			"message": "密码格式非法",
 		})
 		return
 	}
 	if !Rule_email.MatchString(data.Email) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    422,
+			"code":    0,
 			"message": "邮箱格式非法",
 		})
 		//c.Redirect(http.StatusFound, "/register")
@@ -102,7 +101,7 @@ func Register(c *gin.Context) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    500,
+			"code":    0,
 			"message": "Error generating",
 		})
 		c.Redirect(http.StatusFound, "/register")
@@ -111,7 +110,7 @@ func Register(c *gin.Context) {
 	if binary.Setting.UseRedis {
 		if !binary.IsTrue(data.Email, data.Code) {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    500,
+				"code":    0,
 				"message": "验证码错误",
 			})
 			c.Redirect(http.StatusFound, "/register")
@@ -127,23 +126,44 @@ func Register(c *gin.Context) {
 	if err := Db.First(&newuer).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
 		//log.Println(errors.Is(err, gorm.ErrRecordNotFound))
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
+			"code":    0,
 			"message": "账号已存在",
 		})
 		c.Redirect(http.StatusFound, "/register")
 		return
 	}
-	fmt.Println(newuer)
 	Db.Create(&newuer)
+	c.JSON(http.StatusOK, gin.H{
+		"code": 1,
+	})
 }
 
 func update() {
 
 }
-func GetAllDriver(c *gin.Context) {
+func GetUsers(c *gin.Context) {
 	var result []Account
-	Db.Model(&Account{}).Where("Post = ?", "司机").Find(&result)
+	db := Db.Model(&Account{})
+	if c.Query("post") != "" {
+		db = db.Where("Post = ?", c.Query("post"))
+	} else {
+		db = db.Where("Post = ?", "司机")
+	}
+	if c.Query("name") != "" {
+		db = db.Where("name = ?", c.Query("name"))
+	}
+	if c.Query("staff") != "" {
+		db = db.Where("staff = ?", c.Query("staff"))
+	}
+	err := db.Find(&result).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code": 0,
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
+		"code":    1,
+		"num":     len(result),
 		"drivers": result,
 	})
 }

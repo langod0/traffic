@@ -116,6 +116,17 @@ type Quest struct {
 	Drivers   []string  `json:"drivers,omitempty"`
 	Type      string    `json:"type,omitempty"`
 }
+type QueryLine struct {
+	Line_id         uint   `json:"line_id,omitempty"`
+	Station_id      uint   `json:"station_id,omitempty"`
+	Up_station_id   uint   `json:"up_station_id,omitempty"`
+	Down_station_id uint   `json:"down_station_id,omitempty"`
+	Lontitude       string `json:"lontitude,omitempty"`
+	Latitude        string `json:"latitude,omitempty"`
+	Station         string `json:"station,omitempty"`
+	Up_station      string `json:"up_station,omitempty"`
+	Down_station    string `json:"down_station,omitempty"`
+}
 
 func FindStationLine(c *gin.Context) {
 	ques := c.Query("query")
@@ -127,13 +138,29 @@ func FindStationLine(c *gin.Context) {
 			"message": "地铁线不存在",
 		})
 	}
+	query := `select subway_station_subwayline.subway_line_id as line_id,subway_station_subwayline.subway_station_id as station_id ,subway_station_subwayline.up as up_station_id,subway_station_subwayline.down as down_station_id,c.lon as lontitude,c.lat as latitude,c.name as station,a.name as up_station,b.name as down_station
+	from subwaystation as c ,subway_station_subwayline
+								 join subwaystation as a
+									  on subway_station_subwayline.up == a.id
+								 join subwaystation as b
+									  on subway_station_subwayline.down == b.id
+	where subway_station_subwayline.subway_line_id == ? and subway_station_subwayline.subway_station_id  == c.id
+	`
+	var result []QueryLine
+	if err = Db.Raw(query, res.LineId).Scan(&result).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    0,
+			"message": "查找失败",
+		})
+	}
+
 	//var result []SubwayLine
-	Db.Model(&SubwayLine{}).Preload("SubwayStations.Subwaylines").Where("name = ?", ques).Find(&res)
+	//Db.Model(&SubwayLine{}).Preload("SubwayStations.Subwaylines").Where("name = ?", ques).Find(&res)
 	//jsonr, _ := json.Marshal(&result)
 	c.JSON(http.StatusOK, gin.H{
 		"code":     200,
-		"num":      len(res.SubwayStations),
-		"Stations": res.SubwayStations,
+		"num":      len(result),
+		"Stations": result,
 	})
 }
 func CalcSchedule(c *gin.Context) {

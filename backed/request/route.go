@@ -67,7 +67,7 @@ func ServeInit() {
 	Api.POST("/email_verification_code", EmailVerificationCode)
 	Api.GET("/querystationLine", FindStationLine)
 	Api.POST("/register", Register)
-	Api.GET("/getdrivers", GetAllDriver)
+	Api.GET("/getdrivers", GetUsers)
 	Api.GET("/ws", WebSocketHandle)
 	Api.POST("/calctrains", CalcSubway)
 	Api.POST("/calcschedule", CalcSchedule)
