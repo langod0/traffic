@@ -163,6 +163,39 @@ func FindStationLine(c *gin.Context) {
 		"Stations": result,
 	})
 }
+func FindStation(c *gin.Context) {
+	ques := c.Query("query")
+	res := SubwayStation{}
+	err := Db.Where("name = ? ", ques).First(&res).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    0,
+			"message": "地铁站不存在",
+		})
+	}
+	query := `
+	select subway_station_subwayline.subway_line_id as line_id,subway_station_subwayline.subway_station_id as station_id ,subway_station_subwayline.up as up_station_id,subway_station_subwayline.down as down_station_id,c.lon as lontitude,c.lat as latitude,c.name as station,a.name as up_station,b.name as down_station
+	from subwaystation as c ,subway_station_subwayline
+								 join subwaystation as a
+									  on subway_station_subwayline.up == a.id
+								 join subwaystation as b
+									  on subway_station_subwayline.down == b.id
+	where subway_station_subwayline.subway_station_id == ? and subway_station_subwayline.subway_station_id  == c.id
+	`
+	var result []QueryLine
+	if err = Db.Raw(query, res.ID).Scan(&result).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    0,
+			"message": "查找失败",
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":     200,
+		"num":      len(result),
+		"Stations": result,
+	})
+}
 func CalcSchedule(c *gin.Context) {
 	var quest Quest
 	err := c.BindJSON(&quest)

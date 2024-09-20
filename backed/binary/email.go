@@ -24,13 +24,13 @@ const (
 	message  = `
 		<p>Hello</p>
 			<p>这封信是由 ManInM00N 发送的。<p>
-			<p>您收到这封信，意味着您将使用您的邮箱进行账号注册<p>
 			<h2> 这是您的验证码 %s ,有效期为5分钟 <h2>
 	`
 )
 
 var ctx = context.Background()
-var Rdb *redis.Client
+var VarifyRdb *redis.Client
+var CookieRdb *redis.Client
 
 func StopRedis(cmd *exec.Cmd) error {
 	if err := cmd.Process.Kill(); err != nil {
@@ -53,14 +53,19 @@ func RedisInit() *exec.Cmd {
 	}
 	InfoLog.Println("Redis server started successfully.")
 
-	Rdb = redis.NewClient(&redis.Options{
+	VarifyRdb = redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6380",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+	CookieRdb = redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6380",
+		Password: "", // no password set
+		DB:       1,  // use default DB
+	})
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err := Rdb.Ping(ctx).Result()
+	_, err := VarifyRdb.Ping(ctx).Result()
 	if err != nil {
 		DebugLog.Println(err)
 		panic(err)
@@ -81,15 +86,15 @@ func EmailVerificationCode(c *gin.Context) {
 		//c.Redirect(http.StatusFound, "/login")
 		return
 	}
-	SendOut(e)
+	SendOut(e, "账号注册")
 	c.JSON(http.StatusOK, gin.H{})
 }
-func SendOut(dir string) {
+func SendOut(dir, subject string) {
 	code := fmt.Sprintf("%06v", rand.Intn(600000))
 	newmsg := fmt.Sprintf(message, code)
 	if Setting.UseRedis {
 
-		err := Rdb.SetEx(ctx, dir, code, time.Minute*5).Err()
+		err := VarifyRdb.SetEx(ctx, dir, code, time.Minute*15).Err()
 		if err != nil {
 			DebugLog.Fatalln(err)
 		}
@@ -100,7 +105,7 @@ func SendOut(dir string) {
 	m.SetBody("text/html", newmsg)
 	m.SetHeader("To", dir)
 	m.SetHeader("From", m.FormatAddress(userName, "ManInM00N"))
-	m.SetHeader("Subject", "账号注册")
+	m.SetHeader("Subject", subject)
 	d := gomail.NewDialer(
 		host,
 		port,
@@ -116,7 +121,7 @@ func SendOut(dir string) {
 	}
 }
 func IsTrue(dir string, code string) bool {
-	coderow, err := Rdb.Get(ctx, dir).Result()
+	coderow, err := VarifyRdb.Get(ctx, dir).Result()
 	if err != nil && err != redis.Nil {
 		DebugLog.Fatalln(err)
 	}
