@@ -2,6 +2,7 @@ package request
 
 import (
 	"errors"
+	"github.com/ManInM00N/go-tool/statics"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -37,7 +38,7 @@ func Login(c *gin.Context) {
 	}
 	var is Account
 	is.StaffId = data["staff_id"].(string)
-	err := Db.First(&is).Error
+	err := Db.Where("staff_id = ?", is.StaffId).First(&is).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
@@ -53,17 +54,14 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-	//c.SetCookie(is.Name)
+	token, err := GenerateToken(is.StaffId)
 	c.JSON(http.StatusOK, gin.H{
-		"code": 1,
+		"code":  1,
+		"token": token,
 	})
-	//c.Redirect(http.StatusOK, "/user/"+is.Name)
 }
 func Register(c *gin.Context) {
 	var data *Register_Msg
-	//tt := make(map[string]interface{})
-	//c.BindJSON(&tt)
-	//log.Println(tt)
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -79,7 +77,6 @@ func Register(c *gin.Context) {
 			"code":    0,
 			"message": "用户名非法",
 		})
-		//c.Redirect(http.StatusFound, "/register")
 		return
 	}
 	if !Rule_password.MatchString(data.Password) {
@@ -94,7 +91,6 @@ func Register(c *gin.Context) {
 			"code":    0,
 			"message": "邮箱格式非法",
 		})
-		//c.Redirect(http.StatusFound, "/register")
 		return
 	}
 
@@ -123,18 +119,23 @@ func Register(c *gin.Context) {
 		Password: string(hashedPassword),
 		Email:    data.Email,
 	}
-	if err := Db.First(&newuer).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
-		//log.Println(errors.Is(err, gorm.ErrRecordNotFound))
+	tmp := Account{}
+	if err := Db.Where("email = ?", data.Email).First(&Account{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    0,
 			"message": "账号已存在",
 		})
-		c.Redirect(http.StatusFound, "/register")
 		return
 	}
+	Db.Model(&Account{}).Order("staff_id").Last(&tmp)
+	num := statics.GetNumber(tmp.StaffId)
+	newStaff := "R" + statics.Int64ToString(statics.StringToInt64(num)+1)
+	newuer.StaffId = newStaff
 	Db.Create(&newuer)
+	token, err := GenerateToken(newuer.StaffId)
 	c.JSON(http.StatusOK, gin.H{
-		"code": 1,
+		"code":  1,
+		"token": token,
 	})
 }
 

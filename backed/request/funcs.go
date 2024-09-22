@@ -109,6 +109,23 @@ func CalcSubway(c *gin.Context) {
 	res.AllTrains = int64(math.Round(float64(res.Trains) * 1.2))
 
 }
+func GetInfo(c *gin.Context) {
+	staff_id, is := c.Get("staff_id")
+	if !is {
+		c.JSON(404, gin.H{
+			"error":  "invalid token",
+			"status": "0",
+		})
+	}
+	acc := Account{
+		StaffId: staff_id.(string),
+	}
+	Db.First(&acc)
+	c.JSON(200, gin.H{
+		"status": "1",
+		"user":   acc,
+	})
+}
 
 type Quest struct {
 	StartTime time.Time `json:"startTime,omitempty"`
@@ -196,6 +213,7 @@ func FindStation(c *gin.Context) {
 		"Stations": result,
 	})
 }
+
 func CalcSchedule(c *gin.Context) {
 	var quest Quest
 	err := c.BindJSON(&quest)

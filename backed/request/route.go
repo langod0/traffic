@@ -66,6 +66,8 @@ func ServeInit() {
 		})
 	})
 	Api.POST("/login", Login)
+	Api.GET("getinfo", AuthMiddleware(), GetInfo)
+	//Api.Use(AuthMiddleware())
 	//Api.POST("/update", update)
 	Api.POST("/email_verification_code", EmailVerificationCode)
 	Api.GET("/querystationLine", FindStationLine)
