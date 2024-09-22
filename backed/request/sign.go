@@ -138,7 +138,7 @@ func Register(c *gin.Context) {
 	})
 }
 
-func update() {
+func ForgetPassword() {
 
 }
 func GetUsers(c *gin.Context) {

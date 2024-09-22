@@ -51,7 +51,7 @@ func ServeInit() {
 		c.BindJSON(&data)
 		c.JSON(200, gin.H{})
 		if data["email"] != nil {
-			SendOut(data["email"].(string))
+			SendOut(data["email"].(string), "账号注册")
 		}
 	})
 	R.GET("/lis", func(c *gin.Context) {
@@ -59,13 +59,17 @@ func ServeInit() {
 			"num": "hello",
 		})
 	})
-	R.POST("/use/:name", func(c *gin.Context) {
-
+	R.GET("/user/:name", func(c *gin.Context) {
+		name := c.Param("name")
+		c.JSON(200, gin.H{
+			"name": name,
+		})
 	})
 	Api.POST("/login", Login)
 	//Api.POST("/update", update)
 	Api.POST("/email_verification_code", EmailVerificationCode)
 	Api.GET("/querystationLine", FindStationLine)
+	Api.GET("/querystation", FindStation)
 	Api.POST("/register", Register)
 	Api.GET("/getdrivers", GetUsers)
 	Api.GET("/ws", WebSocketHandle)
