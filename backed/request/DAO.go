@@ -40,18 +40,18 @@ type Train struct {
 }
 
 type SubwayLine struct {
-	LineId uint    `gorm:"type:int;not null;unique;primary key;" json:"line_id" binding:"required"`
+	LineId uint    `gorm:"type:int;not null;unique;primary key;index;" json:"line_id" binding:"required"`
 	Name   string  `gorm:"type:varchar(20);not null;" json:"name" binding:"required"`
-	Trains []Train `gorm:"foreignKey:LineId;references:LineId"`
+	Trains []Train `gorm:"foreignKey:LineId;references:LineId" json:"Trains,omitempty"`
 
-	SubwayStations []SubwayStation `gorm:"many2many:subway_station_subwayline;	foreignKey:LineId;references:ID;joinForeignKey:SubwayLineId;joinReferences:SubwayStationId;" json:"subway_stations"`
+	SubwayStations []SubwayStation `gorm:"many2many:subway_station_subwayline;	foreignKey:LineId;references:ID;joinForeignKey:SubwayLineId;joinReferences:SubwayStationId;" json:"subway_stations,omitempty"`
 }
 type SubwayStation struct {
-	ID          uint         `gorm:"type:integer;primary key;index"`
+	ID          uint         `gorm:"type:integer;primary key;index" json:"id" binding:"required"`
 	Lon         string       `gorm:"type:varchar(40);not null;" json:"lon" binding:"required"`
 	Lat         string       `gorm:"type:varchar(40);not null;" json:"lat" binding:"required"`
-	Name        string       `gorm:"type:varchar(20);not null;unique;" json:"name" binding:"required"`
-	Subwaylines []SubwayLine `gorm:"many2many:subway_station_subwayline;foreignKey:ID;references:LineId;joinForeignKey:SubwayStationId;joinReferences:SubwayLineId;" json:"subwaylines" binding:"required"`
+	Name        string       `gorm:"type:varchar(20);not null;" json:"name" binding:"required"`
+	Subwaylines []SubwayLine `gorm:"many2many:subway_station_subwayline;foreignKey:ID;references:LineId;joinForeignKey:SubwayStationId;joinReferences:SubwayLineId;" json:"subwaylines,omitempty" binding:"required"`
 }
 type SubwayStationSubwayline struct {
 	SubwayLineId    uint `gorm:"primaryKey"` // 外键：SubwayLine 的 LineId

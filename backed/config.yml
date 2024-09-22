@@ -1,2 +1,3 @@
 use_redis: true
 redisport: 6380
+debug   : true

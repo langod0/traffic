@@ -109,35 +109,22 @@ func CalcSubway(c *gin.Context) {
 	res.AllTrains = int64(math.Round(float64(res.Trains) * 1.2))
 
 }
-func GetInfo(c *gin.Context) {
-	staff_id, is := c.Get("staff_id")
-	if !is {
-		c.JSON(404, gin.H{
-			"error":  "invalid token",
-			"status": "0",
-		})
-	}
-	acc := Account{
-		StaffId: staff_id.(string),
-	}
-	Db.First(&acc)
-	c.JSON(200, gin.H{
-		"status": "1",
-		"user":   acc,
-	})
-}
 
 type Quest struct {
-	StartTime time.Time `json:"startTime,omitempty"`
-	EndTime   time.Time `json:"endTime,omitempty"`
-	Drivers   []string  `json:"drivers,omitempty"`
-	Type      string    `json:"type,omitempty"`
+	StartTime time.Time `json:"startTime,omitempty" binding:"required"`
+	EndTime   time.Time `json:"endTime,omitempty" binding:"required"`
+	Drivers   []struct {
+		ID    string `json:"id,omitempty" binding:"required"`
+		Class string `json:"class,omitempty" binding:"required"`
+	}
+	Trains []string `json:"trains,omitempty" binding:"required"`
+	Type   string   `json:"type,omitempty" binding:"required"`
 }
 type QueryLine struct {
 	Line_id         uint   `json:"line_id,omitempty"`
 	Station_id      uint   `json:"station_id,omitempty"`
-	Up_station_id   uint   `json:"up_station_id,omitempty"`
-	Down_station_id uint   `json:"down_station_id,omitempty"`
+	Up_station_id   uint   `json:"up_station_id"`
+	Down_station_id uint   `json:"down_station_id"`
 	Lontitude       string `json:"lontitude,omitempty"`
 	Latitude        string `json:"latitude,omitempty"`
 	Station         string `json:"station,omitempty"`
@@ -145,14 +132,15 @@ type QueryLine struct {
 	Down_station    string `json:"down_station,omitempty"`
 }
 
+// 查找线路
 func FindStationLine(c *gin.Context) {
 	ques := c.Query("query")
 	res := SubwayLine{}
 	err := Db.Where("name = ? ", ques).First(&res).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "地铁线不存在",
+			"code":  500,
+			"error": "地铁线不存在",
 		})
 	}
 	query := `select subway_station_subwayline.subway_line_id as line_id,subway_station_subwayline.subway_station_id as station_id ,subway_station_subwayline.up as up_station_id,subway_station_subwayline.down as down_station_id,c.lon as lontitude,c.lat as latitude,c.name as station,a.name as up_station,b.name as down_station
@@ -166,8 +154,8 @@ func FindStationLine(c *gin.Context) {
 	var result []QueryLine
 	if err = Db.Raw(query, res.LineId).Scan(&result).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"code":    0,
-			"message": "查找失败",
+			"code":  0,
+			"error": "查找失败",
 		})
 	}
 
@@ -175,20 +163,23 @@ func FindStationLine(c *gin.Context) {
 	//Db.Model(&SubwayLine{}).Preload("SubwayStations.Subwaylines").Where("name = ?", ques).Find(&res)
 	//jsonr, _ := json.Marshal(&result)
 	c.JSON(http.StatusOK, gin.H{
-		"code":     200,
+		"code":     1,
 		"num":      len(result),
 		"Stations": result,
 	})
 }
+
+// 查找站点
 func FindStation(c *gin.Context) {
 	ques := c.Query("query")
 	res := SubwayStation{}
 	err := Db.Where("name = ? ", ques).First(&res).Error
-	if err != nil {
+	if err != nil || res.ID == 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    0,
-			"message": "地铁站不存在",
+			"code":  0,
+			"error": "地铁站不存在",
 		})
+		return
 	}
 	query := `
 	select subway_station_subwayline.subway_line_id as line_id,subway_station_subwayline.subway_station_id as station_id ,subway_station_subwayline.up as up_station_id,subway_station_subwayline.down as down_station_id,c.lon as lontitude,c.lat as latitude,c.name as station,a.name as up_station,b.name as down_station
@@ -202,35 +193,128 @@ func FindStation(c *gin.Context) {
 	var result []QueryLine
 	if err = Db.Raw(query, res.ID).Scan(&result).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"code":    0,
-			"message": "查找失败",
+			"code":  0,
+			"error": "查找失败",
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code":     200,
+		"code":     1,
 		"num":      len(result),
 		"Stations": result,
 	})
 }
 
+// 计算排班表
 func CalcSchedule(c *gin.Context) {
 	var quest Quest
 	err := c.BindJSON(&quest)
 	if err != nil {
-		c.JSON(502, gin.H{
-			"error": err.Error(),
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "bad request",
 		})
+		c.Abort()
 		return
 	}
 	if quest.Type != "1" && quest.Type != "2" && quest.Type != "3" {
-		c.JSON(502, gin.H{
-			"error": "Type Error",
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "bad request",
 		})
+		c.Abort()
+		return
 	}
 	var res Schedule
+	user := make([]string, 0)
+	var num int64
+	for _, v := range quest.Drivers {
+		if Db.Where("staff_id = ", v.ID).Count(&num); num == 0 {
+			user = append(user, v.ID)
+		}
+	}
+	if 0 != len(user) {
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "users not found",
+			"users": user,
+		})
+		c.Abort()
+		return
+	}
+	user = make([]string, 0)
+	for _, v := range quest.Trains {
+		if Db.Where("id = ", v).Count(&num); num == 0 {
+			user = append(user, v)
+		}
+	}
+	if 0 != len(user) {
+		c.JSON(417, gin.H{
+			"code":   0,
+			"error":  "trains not found",
+			"trains": user,
+		})
+		c.Abort()
+		return
+	}
 	res = GenerateSchedule(quest.StartTime.Truncate(time.Hour*24), quest.EndTime.Truncate(time.Hour*24), quest.Type)
 	c.JSON(200, gin.H{
+		"code":     1,
 		"schedule": res,
+	})
+}
+
+// 查询用户
+func GetUsers(c *gin.Context) {
+	var result []Account
+	db := Db.Model(&Account{})
+	if c.Query("post") != "" {
+		db = db.Where("Post = ?", c.Query("post"))
+	} else {
+		//db = db.Where("Post = ?", "司机")
+	}
+	if c.Query("name") != "" {
+		db = db.Where(fmt.Sprintf("name like %q", "%"+c.Query("name")))
+	}
+	if c.Query("staff") != "" {
+		db = db.Where("staff = ?", c.Query("staff"))
+	}
+	err := db.Find(&result).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code": 0,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    1,
+		"num":     len(result),
+		"drivers": result,
+	})
+}
+
+// 获取个人信息
+func GetInfo(c *gin.Context) {
+	staff_id, is := c.Get("staff_id")
+	if !is {
+		c.JSON(404, gin.H{
+			"error":  "invalid token",
+			"status": "0",
+		})
+	}
+	acc := Account{
+		StaffId: staff_id.(string),
+	}
+	Db.First(&acc)
+
+	var stations []SubwayStation
+	var lines []SubwayLine
+	Db.Where("id != 0").Find(&stations)
+	Db.Where("line_id != 0").Find(&lines)
+	c.JSON(200, gin.H{
+		"code":     1,
+		"user":     acc,
+		"lines":    lines,
+		"stations": stations,
 	})
 }

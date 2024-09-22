@@ -15,6 +15,7 @@ type Config struct {
 	Sqlpassword string `yaml:"sqlpassword"`
 	Sqlport     string `yaml:"sqlport"`
 	Sqlbase     string `yaml:"sqlbase"`
+	Debug       bool   `yaml:"debug" default:"false"`
 }
 
 func (c *Config) Msg() {

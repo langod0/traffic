@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gopkg.in/gomail.v2"
-	"log"
 	. "main/util"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -41,6 +41,9 @@ func StopRedis(cmd *exec.Cmd) error {
 }
 func RedisInit() *exec.Cmd {
 	redisPath := "./redis/bin/redis-server"
+	if runtime.GOOS == "windows" {
+		redisPath = "./redis/bin/redis-server.exe"
+	}
 	configPath := "./redis/redis.conf"
 	rand.Seed(time.Now().Unix())
 	Cmd := exec.Command(redisPath, configPath)
@@ -76,29 +79,40 @@ func RedisInit() *exec.Cmd {
 func EmailVerificationCode(c *gin.Context) {
 	data := make(map[string]any)
 	c.BindJSON(&data)
-	//c.Request.
+	use := data["use"].(string)
 	e := data["email"].(string)
 	if len(e) == 0 || !Rule_email.MatchString(e) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    422,
 			"message": "邮箱非法",
 		})
-		//c.Redirect(http.StatusFound, "/login")
+		c.Abort()
 		return
 	}
-	SendOut(e, "账号注册")
-	c.JSON(http.StatusOK, gin.H{})
+	if use != "register" && use != "reset" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request",
+		})
+		c.Abort()
+	}
+	SendOut(e, use)
+	c.JSON(http.StatusOK, gin.H{
+		"code": 1,
+	})
 }
 func SendOut(dir, subject string) {
 	code := fmt.Sprintf("%06v", rand.Intn(600000))
 	newmsg := fmt.Sprintf(message, code)
-	if Setting.UseRedis {
 
+	if Setting.UseRedis {
 		err := VarifyRdb.SetEx(ctx, dir, code, time.Minute*15).Err()
 		if err != nil {
 			DebugLog.Fatalln(err)
 		}
-		InfoLog.Println(code)
+		DebugLog.Println(dir, code, subject)
+		return
+	}
+	if Setting.Debug {
 		return
 	}
 	m := gomail.NewMessage()
@@ -125,7 +139,9 @@ func IsTrue(dir string, code string) bool {
 	if err != nil && err != redis.Nil {
 		DebugLog.Fatalln(err)
 	}
-	log.Println(code, coderow)
+	if Setting.Debug {
+		DebugLog.Println("")
+	}
 	if coderow != "" && coderow == code {
 		return true
 	}

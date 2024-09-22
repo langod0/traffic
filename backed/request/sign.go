@@ -33,7 +33,6 @@ func Login(c *gin.Context) {
 			"code":    0,
 			"message": "用户名非法",
 		})
-		//c.Redirect(http.StatusFound, "/login")
 		return
 	}
 	var is Account
@@ -100,7 +99,6 @@ func Register(c *gin.Context) {
 			"code":    0,
 			"message": "Error generating",
 		})
-		c.Redirect(http.StatusFound, "/register")
 		return
 	}
 	if binary.Setting.UseRedis {
@@ -109,7 +107,6 @@ func Register(c *gin.Context) {
 				"code":    0,
 				"message": "验证码错误",
 			})
-			c.Redirect(http.StatusFound, "/register")
 			return
 		}
 	}
@@ -119,15 +116,16 @@ func Register(c *gin.Context) {
 		Password: string(hashedPassword),
 		Email:    data.Email,
 	}
-	tmp := Account{}
-	if err := Db.Where("email = ?", data.Email).First(&Account{}).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
+	var tmp Account
+	has := int64(0)
+	if Db.Where("email = ?", data.Email).Count(&has); has > 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    0,
 			"message": "账号已存在",
 		})
 		return
 	}
-	Db.Model(&Account{}).Order("staff_id").Last(&tmp)
+	Db.Model(&Account{}).Order("staff_id DESC").First(&tmp)
 	num := statics.GetNumber(tmp.StaffId)
 	newStaff := "R" + statics.Int64ToString(statics.StringToInt64(num)+1)
 	newuer.StaffId = newStaff
@@ -138,33 +136,78 @@ func Register(c *gin.Context) {
 		"token": token,
 	})
 }
-
-func ForgetPassword() {
-
-}
-func GetUsers(c *gin.Context) {
-	var result []Account
-	db := Db.Model(&Account{})
-	if c.Query("post") != "" {
-		db = db.Where("Post = ?", c.Query("post"))
-	} else {
-		db = db.Where("Post = ?", "司机")
-	}
-	if c.Query("name") != "" {
-		db = db.Where("name = ?", c.Query("name"))
-	}
-	if c.Query("staff") != "" {
-		db = db.Where("staff = ?", c.Query("staff"))
-	}
-	err := db.Find(&result).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code": 0,
+func Updateinfo(c *gin.Context) {
+	staff_id, is := c.Get("staff_id")
+	if !is {
+		c.JSON(404, gin.H{
+			"error": "invalid token",
+			"code":  0,
 		})
+		c.Abort()
 	}
+	Acc := Account{StaffId: staff_id.(string)}
+	Db.Where("staff_id = ?", Acc.StaffId).First(&Acc)
+	var tmp Account
+	c.ShouldBindJSON(&tmp)
+	Acc.Email = tmp.Email
+	Acc.Phone = tmp.Phone
+	Acc.Sex = tmp.Sex
+	Db.Save(&Acc)
 	c.JSON(http.StatusOK, gin.H{
-		"code":    1,
-		"num":     len(result),
-		"drivers": result,
+		"code": 1,
+		"user": Acc,
+	})
+}
+func ForgetPassword(c *gin.Context) {
+	data := make(map[string]interface{})
+	c.BindJSON(&data)
+	email := data["email"].(string)
+	password := data["password"].(string)
+	if !Rule_email.MatchString(email) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code":  0,
+			"error": "邮箱格式非法",
+		})
+		c.Abort()
+		return
+	}
+	if !Rule_password.MatchString(password) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code":  0,
+			"error": "密码格式非法",
+		})
+		c.Abort()
+		return
+	}
+	code := data["code"].(string)
+	if binary.Setting.UseRedis {
+		if !binary.IsTrue(email, code) {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":  0,
+				"error": "验证码错误",
+			})
+			c.Abort()
+			return
+		}
+	}
+	var Acc Account
+	if err := Db.Where("email = ?", email).First(&Acc).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+		c.Abort()
+		return
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code":  0,
+			"error": "Error generating",
+		})
+		c.Abort()
+		return
+	}
+	Acc.Password = string(hashedPassword)
+	Db.Save(&Acc)
+	c.JSON(200, gin.H{
+		"code": 1,
 	})
 }

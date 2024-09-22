@@ -65,18 +65,30 @@ func ServeInit() {
 			"name": name,
 		})
 	})
+	// 登录
 	Api.POST("/login", Login)
+	// 登录获取数据
 	Api.GET("getinfo", AuthMiddleware(), GetInfo)
-	//Api.Use(AuthMiddleware())
-	//Api.POST("/update", update)
+	// 更新个人信息
+	Api.POST("/updateinfo", AuthMiddleware(), Updateinfo)
+	// 生成验证码
 	Api.POST("/email_verification_code", EmailVerificationCode)
-	Api.GET("/querystationLine", FindStationLine)
+	// 重置密码
+	Api.POST("/forgetpassword", ForgetPassword)
+	// 查询线路
+	Api.GET("/querystationline", FindStationLine)
+	// 查询站点
 	Api.GET("/querystation", FindStation)
+	// 注册账号
 	Api.POST("/register", Register)
+	// 查找用户
 	Api.GET("/getdrivers", GetUsers)
 	Api.GET("/ws", WebSocketHandle)
 	Api.POST("/calctrains", CalcSubway)
 	Api.POST("/calcschedule", CalcSchedule)
+	Api.POST("/updateline", AuthMiddleware(), UpdateLine)
+	Api.POST("/updatestation", AuthMiddleware(), UpdateStation)
+	Api.POST("/updaterelations", AuthMiddleware(), UpdateRelationship)
 	go Manager.BroadcastSend()
 	go Manager.Start()
 	go Manager.Quit()

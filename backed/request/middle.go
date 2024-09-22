@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"main/binary"
 	"net/http"
 	"time"
 )
@@ -15,7 +16,7 @@ var jwtSecret = []byte("114514_1919810")
 func GenerateToken(staff_id string) (string, error) {
 	claims := jwt.MapClaims{
 		"staff_id": staff_id,
-		"exp":      time.Now().Add(time.Hour * 24 * 15).Unix(), // Token 过期时间
+		"exp":      time.Now().Add(time.Hour * 15 * 24).Unix(), // Token 过期时间
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
@@ -56,7 +57,11 @@ func AuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+			if binary.Setting.Debug {
+				binary.DebugLog.Println(tt)
+			}
 			c.Set("staff_id", claims["staff_id"])
+			c.Set("isadmin", tt.IsAdmin)
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
 			c.Abort()
