@@ -15,6 +15,11 @@ const (
 	dsn = `sqlserver://%s:%s@localhost:%s?database=%s`
 )
 
+type WorkingSchedule struct {
+	ID       uint   `gorm:"type:int;not null;primary key;unique;" json:"id" binding:"required"`
+	Name     string `gorm:"type:string" json:"name" binding:"required"`
+	Filename string `gorm:"type:string" json:"filename" binding:"required"`
+}
 type Account struct {
 	Name       string `gorm:"type:varchar(20);not null;comment:'姓名'" json:"name" binding:"required"`
 	Password   string `gorm:"size:255;not null" json:"-" binding:"required"`
@@ -32,13 +37,6 @@ type Train struct {
 	Drivers  []Account
 	LineId   uint `gorm:"type:int" json:"line_id" binding:"required"`
 	Capacity uint `gorm:"type:int" json:"capacity" binding:"required"`
-}
-
-func (a *Train) String() string {
-	return "train"
-}
-func (a *Account) TableName() string {
-	return "account"
 }
 
 type SubwayLine struct {
@@ -59,10 +57,13 @@ type SubwayStationSubwayline struct {
 	SubwayLineId    uint `gorm:"primaryKey"` // 外键：SubwayLine 的 LineId
 	SubwayStationId uint `gorm:"primaryKey"` // 外键：SubwayStation 的 ID
 
-	Up   uint `gorm:"type:int;comment:'上行' default:-1;" json:"up" binding:"required"`
-	Down uint `gorm:"type:int;comment:'下行'" json:"down" binding:"required"`
+	Up   uint `gorm:"type:int;comment:'上行' default:0;" json:"up" binding:"required"`
+	Down uint `gorm:"type:int;comment:'下行' default:0 " json:"down" binding:"required"`
 }
 
+func (a *WorkingSchedule) TableName() string {
+	return "working_schedule"
+}
 func (a *SubwayStationSubwayline) TableName() string {
 	return "subway_station_subwayline"
 }
@@ -72,6 +73,13 @@ func (a *SubwayLine) TableName() string {
 func (a *SubwayStation) TableName() string {
 	return "subwaystation"
 }
+func (a *Train) String() string {
+	return "train"
+}
+func (a *Account) TableName() string {
+	return "account"
+}
+
 func DBInit() {
 	var err error
 	//var DSN = fmt.Sprintf(dsn, binary.Setting.Sqlusername, binary.Setting.Sqlpassword, binary.Setting.Sqlport, binary.Setting.Sqlbase)
