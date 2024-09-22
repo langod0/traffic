@@ -1,5 +1,7 @@
 <template>
-
+    <div class="backhome">
+        <a href="/">首页</a>
+    </div>
     <div class="shell">
         <div
             :class="['container', activeContainer === 'a' ? 'a-container' : 'b-container', activeContainer === 'a' ? 'is-z' : '']">
@@ -10,7 +12,7 @@
                 <div class="rout">
                     <!-- <a href="#" class="form_link"><button @click="forgotpassword()">忘记密码</button></a> -->
                     <router-link to="/forgot-password" class="rou">忘记密码</router-link>
-                     <a href="/register" class="form_link" style="text-decoration:none;" @click="toregister">注册账号</a>
+                     <a href="/register" class="rou" style="text-decoration:none;" @click="toregister" >注册账号</a>
 <!--                    <router-link to="/register" class="rou">前往注册</router-link>-->
                 </div>
 
@@ -103,7 +105,18 @@ function toregister() {
     /* 字体无法选中 */
     user-select: none;
 }
-
+.backhome{
+    position:absolute;
+    top:0px;
+    left:0px;
+    z-index: 100;
+}
+.backhome a{
+    font-size: 30px;
+    font-family: 楷体;
+    text-decoration: none;
+    
+}
 body {
     width: 100%;
     height: 100vh;
@@ -364,7 +377,7 @@ body {
 }
 
 .rou {
-    margin: 10px;
+    margin: 5px;
     text-decoration: none;
     font-family: '微软雅黑';
 }

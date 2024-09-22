@@ -1,4 +1,5 @@
 <template>
+    
     <div class="total">
         <div class="top">
             <div class="header">

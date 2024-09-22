@@ -26,6 +26,10 @@ const routes = [
     component: () => import('../components/items/LineCreate.vue')
   },
   {
+    path: '/shows',
+    component: () => import('../components/items/Show.vue')
+  },
+  {
     path: '/lnfo',
     component: () => import('../components/items/InfoForm.vue')
   },

@@ -18,8 +18,8 @@
                     <div class="nav-content-center">
                         <img src="../assets/地铁系统logo.png" class="logo">
                     </div>
-                    <div class="nav-content-right">
-                        <span>退出</span>
+                    <div class="exit">
+                        <a href="/"><span>退出</span></a>
                         <img src="../assets/幽灵.jpg">
                     </div>
                 </div>
@@ -57,6 +57,12 @@
                                 <p class="content">查看排班</p>
                             </button>
                         </li>
+                        <li>
+                            <button @click="showdata" id="router">
+                                <img src="../assets/ksh.png">
+                                <p class="content">可视化分析</p>
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -70,6 +76,9 @@
                 </div>
                 <div class="main-table" v-if="istable">
                     <tablevue/>
+                </div>
+                <div class="main-show" v-if="isshow">
+                    <showvue/>
                 </div>
             </dev>
         </div>
@@ -86,7 +95,7 @@ import linesvue from './items/LineCreate.vue'
 import infovue from './items/InfoForm.vue'
 import tablevue from './items/ScheduleTable.vue'
 import mapvue from './items/Map.vue'
-
+import showvue from './items/Show.vue'
 //地铁滑动
 let isSliding = ref(false);
 onMounted(() => {
@@ -98,21 +107,31 @@ setTimeout(() => {
 let islines = ref(false);
 let istable = ref(false);
 let isinfo = ref(false);
+let isshow = ref(false);
 //lines组件
 
 function addLines(){
     islines.value = true;
     isinfo.value = false;
     istable.value = false;
+    isshow.value = false;
     console.log('1');
 }
+function showdata(){
+    islines.value = false;
+    isinfo.value = false;
+    istable.value = false;
+    isshow.value = true;
+    console.log('1');
 
+}
 //lnfo组件
 
 function addInfo(){
     isinfo.value = true;
     islines.value = false;
     istable.value = false;
+    isshow.value = false;
     console.log('1');
 }
 
@@ -122,6 +141,7 @@ function addTable(){
     istable.value = true;
     isinfo.value = false;
     islines.value = false;
+    isshow.value = false;
     console.log('1');
 }
 
@@ -266,32 +286,17 @@ overflow: hidden;
     width:250px;
     height: 100px;
 }
-
-
-
-.headbar .nav-content-right {
+.exit{
     position: relative;
-    left: 1680px;
-    width: 220px;
-    display: flex;
-    align-content: center;
+    margin-left:650px ;
+    margin-top:15px;
+    /* border: 3px solid blue; */
+}
+.exit a{
+    color: black;
 }
 
 
-.headbar .nav-content-right span {
-    color: #fff;
-    position: relative;
-    left: 100px;
-    top: 30px;
-    font-size:20px;
-}
-
-
-.headbar .nav-content-right img {
-    position: relative;
-    left: 130px;
-    top: 17px;
-}
     
     
     
@@ -547,12 +552,12 @@ li:hover img {
 
 /* app-main */
 .app-main{
-    height: 1000px;
-    width:2000px;
+    height: 740px;
+    width:1300px;
     position: absolute;
-    border-radius: 30px;
-    top:50px;
-    left:400px;
+    /* border-radius: 30px; */
+    top:0px;
+    left:200px;
     background-color: rgba(255, 255, 255, 0.5);
 }
 

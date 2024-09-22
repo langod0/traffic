@@ -1,4 +1,7 @@
 <template>
+    <div class="backhome">
+        <a href="/" style="color: black;">首页</a>
+    </div>
     <div class="container" :class="{ 'sign-up-mode': isSignUp }">
         <div class="form-warp">
             <form class="sign-in-form" v-if="!isSignUp">
@@ -62,7 +65,22 @@ export default {
     box-sizing: border-box;
     color: #333;
 }
-
+a{
+    text-decoration: none;
+    color: rgb(103, 103, 236);
+}
+.backhome{
+    position:absolute;
+    top:0px;
+    left:0px;
+    z-index: 100;
+}
+.backhome a{
+    font-size: 30px;
+    font-family: 楷体;
+    text-decoration: none;
+    
+}
 .container {
     position: relative;
     min-height: 100vh;

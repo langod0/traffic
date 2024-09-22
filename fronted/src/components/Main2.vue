@@ -18,8 +18,8 @@
                     <div class="nav-content-center">
                         <img src="../assets/地铁系统logo.png" class="logo">
                     </div>
-                    <div class="nav-content-right">
-                        <span>退出</span>
+                    <div class="exit">
+                        <a href="/"><span>退出</span></a>
                         <img src="../assets/幽灵.jpg">
                     </div>
                 </div>
@@ -422,30 +422,15 @@ ul li {
 
 
 
-.headbar .nav-content-right {
+.exit{
     position: relative;
-    left: 1680px;
-    width: 220px;
-    display: flex;
-    align-content: center;
+    margin-left:650px ;
+    margin-top:15px;
+    /* border: 3px solid blue; */
 }
-
-
-.headbar .nav-content-right span {
-    color: #fff;
-    position: relative;
-    left: 100px;
-    top: 30px;
+.exit a{
+    color: rgb(0, 0, 0);
 }
-
-
-.headbar .nav-content-right img {
-    position: relative;
-    left: 130px;
-    top: 17px;
-}
-
-
 
 /* nav-content
 .headbar .nav-content{
@@ -558,13 +543,13 @@ ul li {
 
 
 /* app-main */
-.app-main {
-    height: 1000px;
-    width: 2000px;
+.app-main{
+    height: 740px;
+    width:1300px;
     position: absolute;
-    border-radius: 30px;
-    top: 50px;
-    left: 400px;
+    /* border-radius: 30px; */
+    top:0px;
+    left:200px;
     background-color: rgba(255, 255, 255, 0.5);
 }
 </style>
