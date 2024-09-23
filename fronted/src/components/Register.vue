@@ -8,21 +8,26 @@
                 <span class="form-title">管理员注册</span>
                 <input placeholder="email" v-model="email"/>
                 <input type="password" placeholder="密码" v-model="password" />
-
+              <input type="password" placeholder="确认密码" v-model="password1" />
+              <button class="submit-btn" @click.prevent="getyzm">发送验证码</button>
+                <input type="text" placeholder="验证码" v-model="yzm" />
                 <button class="submit-btn" @click.prevent="login">立即注册</button>
               <a href="/login" style="text-decoration:none;" >已有账号?</a>
             </form>
             <form class="sign-up-form" v-if="isSignUp">
                 <span class="form-title">司机注册</span>
-                <input placeholder="email" />
-                <input type="password" placeholder="密码" />
+                <input placeholder="email" v-model="email" />
+                <input type="password" placeholder="密码" v-model="password"/>
+              <input type="password" placeholder="确认密码" v-model="password1" />
+              <button class="submit-btn" @click.prevent="getyzm">发送验证码</button>
+                <input type="text" placeholder="验证码" v-model="yzm" />
                 <button class="submit-btn" @click.prevent="register">立即注册</button>
                 <a href="/login" >已有账号?</a>
             </form>
         </div>
         <div class="desc-warp">
 
-            <div class="desc-warp-item sign-up-desc">
+            <div class="desc-warp-item sign-up-desc" >
                 <button @click="isSignUp = true">我是司机</button>
                 <img src="../assets/administrators.svg" alt="">
             </div>
@@ -44,15 +49,31 @@ export default {
     setup() {
       const email = ref('');
         const password = ref('');
-
+      const yzm= ref('');
         const isSignUp = ref(false);
         const name="langgod"
         const password1=ref('')
+        const getyzm=()=>{
 
+            axios.post("goapi/api/email_verification_code",{"email":email.value,"use":"register"})
+            .then((response) =>{
+              console.log(response.data)
+               if(response.data.code==0){
+                  alert(response.data.error)
+               }else{
+                    alert("验证码已发送")
+              // localStorage.setItem("Authorization", response.data.token);
+
+               }
+           }
+            )
+
+
+
+        }
         const login = () => {
             // console.log('登录');
-              password1.value=password.value
-            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'b'})
+            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'b',"code":yzm.value})
           .then((response) =>{
             console.log(response.data)
             if(response.data.code==0){
@@ -70,7 +91,7 @@ export default {
 
 
         const register = () => {
-            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'a'})
+            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'a',"code":yzm.value})
           .then((response) =>{
             console.log(response.data)
             if(response.data.code==0){
@@ -86,7 +107,7 @@ export default {
 
         };
 
-        return { isSignUp, login, register,email,password,name,password1};
+        return { isSignUp, login, register,email,password,name,password1,yzm,getyzm};
     },
 };
 </script>
@@ -215,7 +236,7 @@ input::placeholder {
 
 .container .form-warp input{
     width:500px;
-    height: 80px;
+    height: 60px;
     font-size:40px;
 }
 
