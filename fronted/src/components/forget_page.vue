@@ -8,16 +8,17 @@
             <form @submit.prevent="submitForm()"  class="form">
                 <h2 class="form_title title">{{ activeContainer === 'a' ? '司机重置账号' : '管理员重置账号' }}</h2>
                 <input type="text" class="form_input" placeholder="邮箱" v-model="email" />
-              <button class="form_button button submit"  @click="LoginFunc">登录</button>
-                <input type="text" class="form_input" placeholder="密码" v-model="password" />
+              <button class="form_button button submit"  @click="getyzm">发送验证码</button>
+              <input type="text" class="form_input" placeholder="验证码" v-model="yzm" />
+                <input type="password" class="form_input" placeholder="密码" v-model="password" />
                 <div class="rout">
                     <!-- <a href="#" class="form_link"><button @click="forgotpassword()">忘记密码</button></a> -->
-                    <router-link to="/forget" class="rou">忘记密码</router-link>
+                    <router-link to="/login" class="rou">登录</router-link>
                      <a href="/register" class="rou" style="text-decoration:none;" @click="toregister" >注册账号</a>
 <!--                    <router-link to="/register" class="rou">前往注册</router-link>-->
                 </div>
 
-                <button class="form_button button submit"  @click="LoginFunc">登录</button>
+                <button class="form_button button submit"  @click="resetp">重置密码</button>
             </form>
         </div>
         <div class="switch" @click="switchForm">
@@ -46,34 +47,66 @@ const activeContainer = ref('a');
 const email = ref('');
 const password = ref('');
 const dt=ref("")
-
-const LoginFunc=()=>{
+const yzm=ref("")
+const getyzm=()=>{
   if (activeContainer.value==='a'){
-    axios.post("goapi/api/login",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+    axios.post("goapi/api/email_verification_code",{"email":email.value,"use":"reset"})
         .then((response) =>{
             console.log(response.data)
             if(response.data.code==0){
-              alert(response.data.message)
+              alert(response.data.error)
             }else{
+                alert("验证码已发送")
+              // localStorage.setItem("Authorization", response.data.token);
 
-              localStorage.setItem("Authorization", response.data.token);
-              router.push('/main2').then(()=>{
+            }
+        }
+        )
+  }else{
+    axios.post("goapi/api/email_verification_code",{"email":email.value,"use":"reset"})
+        .then((response) =>{
+            console.log(response.data)
+            if(response.data.code==0){
+              alert(response.data.error)
+            }else{
+                alert("验证码已发送")
+              // localStorage.setItem("Authorization", response.data.token);
+
+            }
+        }
+        )
+
+  }
+}
+const resetp=()=>{
+  if (activeContainer.value==='a'){
+    axios.post("goapi/api/forgetpassword",{"email":email.value,"password":password.value,"usertype":activeContainer.value,"use":"reset","code":yzm.value})
+        .then((response) =>{
+            console.log(response.data)
+            if(response.data.code==0){
+              alert(response.data.error)
+            }else{
+            alert("密码已重置")
+              // localStorage.setItem("Authorization", response.data.token);
+              router.push('/login').then(()=>{
               window.location.reload();
               });
             }
         }
         )
   }else{
-    axios.post("goapi/api/login",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+    axios.post("goapi/api/forgetpassword",{"email":email.value,"password":password.value,"usertype":activeContainer.value,"use":"reset","code":yzm.value})
         .then((response) =>
         {
           console.log(1)
             if(response.data.code==0){
-              alert(response.data.message)
+              alert(response.data.error)
             }else{
-              console.log(1)
-              localStorage.setItem("Authorization", response.data.token);
-              router.push('/main').then(()=>{
+              // console.log(1)
+              // localStorage.setItem("Authorization", response.data.token);
+              alert("密码已重置")
+              router.push('/login').then(()=>{
+
               window.location.reload();
               });
             }
@@ -287,7 +320,7 @@ body {
     width: 180px;
     height: 50px;
     border-radius: 25px;
-    margin-top: 50px;
+    margin-top: 5px;
     font-weight: 700;
     font-size: 14px;
     letter-spacing: 1.15px;
