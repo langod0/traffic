@@ -94,19 +94,19 @@
       if(ss.value=="all"){
         if(stat.value=="all"){
           tit.value="2019.1."+dd.value+"号每个时间段总客流量";
-          for(var i=0;i<Numin.value[ii.value-1].length;i++){
-            ydata.value.push(Numin.value[ii.value-1][i]+Numout.value[ii.value-1][i])
+          for(var i=0;i<Numin.value.length;i++){
+            ydata.value.push(Numin.value[i]+Numout.value[i])
           }
           // ydata.value=Numin[i]
         }else if(stat.value=="in"){
           tit.value="2019.1."+dd.value+"号每个时间段上车客流量";
-          for(var i=0;i<Numin.value[ii.value-1].length;i++){
-            ydata.value.push(Numin.value[ii.value-1][i])
+          for(var i=0;i<Numin.value.length;i++){
+            ydata.value.push(Numin.value[i])
           }
         }else{
           tit.value="2019.1."+dd.value+"每个时间段下车客流量";
-          for(var i=0;i<Numin.value[ii.value-1].length;i++){
-            ydata.value.push(Numout.value[ii.value-1][i])
+          for(var i=0;i<Numin.value.length;i++){
+            ydata.value.push(Numout.value[i])
           }
         }
       }else{
