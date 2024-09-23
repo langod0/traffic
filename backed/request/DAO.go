@@ -3,6 +3,7 @@ package request
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"main/binary"
 	"os"
 	"time"
 )
@@ -93,6 +94,7 @@ func DBInit() {
 	Db, err = gorm.Open(sqlite.Open("Subway.db"), &gorm.Config{})
 	if err != nil {
 		os.Exit(15)
+		binary.DebugLog.Println(err)
 	}
 	sqlDB, _ := Db.DB()
 	// 设置空闲连接池中连接的最大数量
