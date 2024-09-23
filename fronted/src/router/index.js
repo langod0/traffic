@@ -18,6 +18,10 @@ const routes = [
     component: () => import('../components/Main.vue')
   },
   {
+    path: '/predatas',
+    component: () => import('../components/items/Predata.vue')
+  },
+  {
     path: '/main2',
     component: () => import('../components/Main2.vue')
   },

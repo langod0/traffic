@@ -63,6 +63,12 @@
                                 <p class="content">可视化分析</p>
                             </button>
                         </li>
+                        <li>
+                            <button @click="predata" id="router">
+                                <img src="../assets/yc.png">
+                                <p class="content">预测客流量</p>
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -80,6 +86,9 @@
                 <div class="main-show" v-if="isshow">
                     <showvue/>
                 </div>
+                <div class="main-show" v-if="ispre">
+                    <prevue/>
+                </div>
             </dev>
         </div>
         
@@ -96,6 +105,7 @@ import infovue from './items/InfoForm.vue'
 import tablevue from './items/ScheduleTable.vue'
 import mapvue from './items/Map.vue'
 import showvue from './items/Show.vue'
+import prevue from './items/Predata.vue'
 //地铁滑动
 let isSliding = ref(false);
 onMounted(() => {
@@ -108,6 +118,7 @@ let islines = ref(false);
 let istable = ref(false);
 let isinfo = ref(false);
 let isshow = ref(false);
+let ispre= ref(false);
 //lines组件
 
 function addLines(){
@@ -115,6 +126,15 @@ function addLines(){
     isinfo.value = false;
     istable.value = false;
     isshow.value = false;
+    ispre.value = false;
+    console.log('1');
+}
+function predata() {
+    islines.value = false;
+    isinfo.value = false;
+    istable.value = false;
+    isshow.value = false;
+    ispre.value = true;
     console.log('1');
 }
 function showdata(){
@@ -122,6 +142,7 @@ function showdata(){
     isinfo.value = false;
     istable.value = false;
     isshow.value = true;
+    ispre.value = false;
     console.log('1');
 
 }
@@ -132,6 +153,7 @@ function addInfo(){
     islines.value = false;
     istable.value = false;
     isshow.value = false;
+    ispre.value = false;
     console.log('1');
 }
 
@@ -142,6 +164,7 @@ function addTable(){
     isinfo.value = false;
     islines.value = false;
     isshow.value = false;
+    ispre.value = false;
     console.log('1');
 }
 

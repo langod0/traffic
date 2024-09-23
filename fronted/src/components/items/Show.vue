@@ -2,6 +2,7 @@
   <div class="mainshow">
     <div class="bs">
       <button @click="Show_data" class="showb">可视化分析</button>
+      <!-- <span>aaa{{ Stnumin }}</span> -->
     </div>
 
     <div class="op" v-if="isss">
@@ -70,14 +71,14 @@ function Show_data() {
       Stationnum.value = response.data.Stationnum;
       // alert(Stationnum)
       Daynum.value = response.data.Daynum;
-      Stnumin.value = response.data.Stationnumin;
-      Stnumout.value = response.data.Stationnumout;
+      Stnumin.value = response.data.Station_num_in;
+      Stnumout.value = response.data.Station_num_out;
       Tm.value = response.data.Tm;
       Smin.value = response.data.Smin;
       Smout.value = response.data.Smout;
       Smstin.value = response.data.Smstin;
       Smstout.value = response.data.Smsout;
-
+      // console.log(Stnumin.value)
       console.log(1);
       
     })
@@ -90,12 +91,13 @@ function selectValue1(sl){
   dd.value=sl
 }
 function selectValue2(sl){
-  ss.value=Number(sl)
+  ss.value=sl
 }
 function selectValue3(sl){
   stat.value=sl
 }
 function showdata(){
+  
   ydata.value=[]
   isst.value =true;
   console.log(dd.value);
@@ -138,11 +140,13 @@ function showdata(){
       
     }
     else{
+      ss.value=Number(ss.value)-1
       if(stat.value=="all"){
         tit.value="多天"+String(ss.value)+"号站点总客流";
         for(var i=0;i<Daynum.value.length;i++){
           let smm=ref(0)
           for(var j=0;j<Tm.value.length;j++){
+           
             smm.value=smm.value+Stnumin.value[i][ss.value][j]+Stnumout.value[i][ss.value][j];
           }
           ydata.value.push(smm.value);
@@ -152,6 +156,7 @@ function showdata(){
         for(var i=0;i<Daynum.value.length;i++){
           let smm=ref(0)
           for(var j=0;j<Tm.value.length;j++){
+            // console.log(Stnumin.value[i][ss.value][j]);
             smm.value=smm.value+Stnumin.value[i][ss.value][j];
           }
           ydata.value.push(smm.value);
@@ -168,7 +173,53 @@ function showdata(){
       }
     }
   }else{
+    let ii=ref(0)
+    ii.value=Number(dd.value)
+    console.log(ii.value)
+    console.log(typeof(ii.value))
+    console.log(ss.value)
+    console.log(stat.value)
     xdata.value =Tm.value;
+    if(ss.value=="all"){
+      if(stat.value=="all"){
+        tit.value="2019.1."+dd.value+"号每个时间段总客流量";
+        for(var i=0;i<Numin.value[ii.value-1].length;i++){
+          ydata.value.push(Numin.value[ii.value-1][i]+Numout.value[ii.value-1][i])
+        }
+        // ydata.value=Numin[i]
+      }else if(stat.value=="in"){
+        tit.value="2019.1."+dd.value+"号每个时间段上车客流量";
+        for(var i=0;i<Numin.value[ii.value-1].length;i++){
+          ydata.value.push(Numin.value[ii.value-1][i])
+        }
+      }else{
+        tit.value="2019.1."+dd.value+"每个时间段下车客流量";
+        for(var i=0;i<Numin.value[ii.value-1].length;i++){
+          ydata.value.push(Numout.value[ii.value-1][i])
+        }
+      }
+    }else{
+      let jj=ref(0)
+      jj.value=Number(ss.value)-1;
+      console.log(11)
+      if(stat.value=="all"){
+        console.log(11)
+        tit.value="2019.1."+dd.value+String(jj.value)+"号站点每个时间段总客流量";
+        for(var i=0;i<Stnumin.value[ii.value-1][jj.value].length;i++){
+          ydata.value.push(Stnumin.value[ii.value-1][jj.value][i]+Stnumout.value[ii.value-1][jj.value][i])
+        }
+      }else if(stat.value=="in"){
+        tit.value="2019.1."+dd.value+String(jj.value)+"号站点每个时间段上车客流量";
+        for(var i=0;i<Stnumin.value[ii.value-1][jj.value].length;i++){
+          ydata.value.push(Stnumin.value[ii.value-1][jj.value][i])
+        }
+      }else{
+        tit.value="2019.1."+dd.value+String(jj.value)+"号站点每个时间段下车客流量";
+        for(var i=0;i<Stnumin.value[ii.value-1][jj.value].length;i++){
+          ydata.value.push(Stnumout.value[ii.value-1][jj.value][i])
+        }
+      }
+    }
   }
   console.log(xdata.value)
   console.log(ydata.value)
@@ -278,7 +329,7 @@ button {
   margin-top: 50px;
   width: 900px;
   height: 600px;
-  border: 3px solid blue;
+  /* border: 3px solid blue; */
 }
 .mainshow {
   width: 1300px;
