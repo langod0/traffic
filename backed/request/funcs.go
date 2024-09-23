@@ -111,6 +111,7 @@ func CalcSubway(c *gin.Context) {
 }
 
 type Quest struct {
+	Name      string    `json:"name" binding:"required"`
 	StartTime time.Time `json:"startTime,omitempty" binding:"required"`
 	EndTime   time.Time `json:"endTime,omitempty" binding:"required"`
 	Drivers   []struct {
@@ -226,6 +227,7 @@ func CalcSchedule(c *gin.Context) {
 		c.Abort()
 		return
 	}
+
 	var res Schedule
 	user := make([]string, 0)
 	var num int64
@@ -258,7 +260,27 @@ func CalcSchedule(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	if quest.Type == "2" {
+		if len(quest.Drivers)%3 != 0 {
+			c.JSON(417, gin.H{
+				"code":  0,
+				"error": "bad request",
+			})
+			c.Abort()
+			return
+		}
+	} else {
+		if len(quest.Drivers)%4 != 0 {
+			c.JSON(417, gin.H{
+				"code":  0,
+				"error": "bad request",
+			})
+			c.Abort()
+			return
+		}
+	}
 	res = GenerateSchedule(quest.StartTime.Truncate(time.Hour*24), quest.EndTime.Truncate(time.Hour*24), quest.Type)
+
 	c.JSON(200, gin.H{
 		"code":     1,
 		"schedule": res,
@@ -309,12 +331,15 @@ func GetInfo(c *gin.Context) {
 
 	var stations []SubwayStation
 	var lines []SubwayLine
+	var trains []Train
 	Db.Where("id != 0").Find(&stations)
 	Db.Where("line_id != 0").Find(&lines)
+	Db.Where("id != 无").Find(&trains)
 	c.JSON(200, gin.H{
 		"code":     1,
 		"user":     acc,
 		"lines":    lines,
 		"stations": stations,
+		"trains":   trains,
 	})
 }

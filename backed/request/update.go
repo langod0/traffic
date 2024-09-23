@@ -357,3 +357,103 @@ func UpdateRelationship(c *gin.Context) {
 		"result": result,
 	})
 }
+
+type QueryTrain struct {
+	ID     *string `json:"id" binding:"required"`
+	Cap    uint    `json:"cap" binding:"required"`
+	LineId *uint   `json:"line_id" binding:"required"`
+	Use    *int    `json:"use" binding:"required"`
+}
+
+func UpdateTrains(c *gin.Context) {
+	val, has := c.Get("isadmin")
+	if !has {
+		c.JSON(404, gin.H{
+			"error": "system error",
+			"code":  0,
+		})
+		c.Abort()
+		return
+	}
+	can := val.(bool)
+	if !can {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":  0,
+			"error": "Insufficient authority",
+		})
+		c.Abort()
+		return
+	}
+	var data QueryTrain
+	err := c.BindJSON(&data)
+	if err != nil {
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "bad request",
+		})
+		c.Abort()
+		return
+	}
+	if *data.Use < -1 || *data.Use > 1 {
+		c.JSON(400, gin.H{
+			"code":  0,
+			"error": "bad request",
+		})
+		c.Abort()
+		return
+	}
+	var num int64
+	Db.Model(&SubwayLine{}).Where("line_id = ?", *data.LineId).Count(&num)
+	if num == 0 {
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "line not found",
+		})
+		c.Abort()
+		return
+	}
+	Db.Model(&Train{}).Where("id = ?", *data.ID).Count(&num)
+	if *data.Use == 1 {
+		if num > 0 {
+			c.JSON(417, gin.H{
+				"code":  0,
+				"error": "Train exists",
+			})
+			c.Abort()
+			return
+		}
+		var tmp Train
+		tmp.ID = *data.ID
+		tmp.LineId = *data.LineId
+		tmp.Capacity = data.Cap
+		Db.Create(&tmp)
+	} else if *data.Use == 0 {
+		if num == 0 {
+			c.JSON(417, gin.H{
+				"code":  0,
+				"error": "Train not found",
+			})
+			c.Abort()
+			return
+		}
+		Db.Model(&Train{}).Where("id = ?", *data.ID).Updates(Train{ID: *data.ID, Capacity: data.Cap, LineId: *data.LineId})
+	} else {
+		if num == 0 {
+			c.JSON(417, gin.H{
+				"code":  0,
+				"error": "Train not found",
+			})
+			c.Abort()
+			return
+		}
+		Db.Model(&Account{}).Where("train_id = ?", data.ID).Update("train_id", "无")
+		Db.Model(&Train{}).Where("id = ?", *data.ID).Delete(&Train{})
+	}
+	var result []Train
+	Db.Model(&Train{}).Where("id != '无'").Find(&result)
+	c.JSON(200, gin.H{
+		"code":   1,
+		"num":    len(result),
+		"trains": result,
+	})
+}

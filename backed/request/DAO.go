@@ -15,6 +15,12 @@ const (
 	dsn = `sqlserver://%s:%s@localhost:%s?database=%s`
 )
 
+type ScheduleJson struct {
+	Date    string `json:"date"`
+	Shift   string `json:"shift"`
+	Class   string `json:"class"`
+	StaffId string `json:"staff_id"`
+}
 type WorkingSchedule struct {
 	ID       uint   `gorm:"type:int;not null;primary key;unique;" json:"id" binding:"required"`
 	Name     string `gorm:"type:string" json:"name" binding:"required"`
@@ -100,6 +106,7 @@ func DBInit() {
 	Db.AutoMigrate(&SubwayStation{})
 	Db.AutoMigrate(&SubwayLine{})
 	Db.AutoMigrate(&SubwayStationSubwayline{})
+	Db.AutoMigrate(&WorkingSchedule{})
 	if !Db.Migrator().HasTable(&Account{}) {
 		os.Exit(17)
 	}

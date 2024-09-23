@@ -89,6 +89,7 @@ func ServeInit() {
 	Api.POST("/updateline", AuthMiddleware(), UpdateLine)
 	Api.POST("/updatestation", AuthMiddleware(), UpdateStation)
 	Api.POST("/updaterelations", AuthMiddleware(), UpdateRelationship)
+	Api.POST("/updatetrain", AuthMiddleware(), UpdateTrains)
 	go Manager.BroadcastSend()
 	go Manager.Start()
 	go Manager.Quit()
