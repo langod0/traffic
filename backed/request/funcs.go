@@ -1,10 +1,13 @@
 package request
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -206,6 +209,29 @@ func FindStation(c *gin.Context) {
 
 // 计算排班表
 func CreateSchedule(c *gin.Context) {
+	val, has := c.Get("isadmin")
+	if !has {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "Invalid token",
+		})
+	}
+	can := val.(bool)
+	if !can {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "bad request",
+		})
+		c.Abort()
+		return
+	}
+	val, has = c.Get("staff_id")
+	if !has {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "Invalid token",
+		})
+	}
 	var quest Quest
 	err := c.BindJSON(&quest)
 	if err != nil {
@@ -246,6 +272,7 @@ func CreateSchedule(c *gin.Context) {
 			c.Abort()
 			return
 		}
+		jsondata.Type = ThreeDayCycle
 	} else {
 		if len(quest.Drivers)%4 != 0 {
 			c.JSON(417, gin.H{
@@ -254,6 +281,11 @@ func CreateSchedule(c *gin.Context) {
 			})
 			c.Abort()
 			return
+		}
+		if quest.Type == "1" {
+			jsondata.Type = FourDayCycle
+		} else {
+			jsondata.Type = FourDayCycle2
 		}
 	}
 	var res Schedule
@@ -285,10 +317,21 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 	user = make([]string, 0)
+	mm = make(map[string]bool)
 	for _, v := range quest.Trains {
 		if Db.Where("id = ", v).Count(&num); num == 0 {
 			user = append(user, v)
 		}
+		mm[v] = true
+	}
+	if len(mm) != number {
+
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "train repeated",
+		})
+		c.Abort()
+		return
 	}
 	if 0 != len(user) {
 		c.JSON(417, gin.H{
@@ -300,7 +343,28 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 	res = GenerateSchedule(quest.StartTime.Truncate(time.Hour*24), quest.EndTime.Truncate(time.Hour*24), quest.Type)
-
+	jsondata.Schedule = res
+	jsondata.StartTime = quest.StartTime.Format("2006-01-02")
+	jsondata.EndTime = quest.EndTime.Format("2006-01-02")
+	var schedule WorkingSchedule
+	schedule.Name = quest.Name
+	schedule.Filename = time.Now().Format("2006-01-02_03-04_05") + val.(string) + ".json"
+	file, err := os.Create("./data/" + schedule.Filename)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":  0,
+			"error": "system error",
+		})
+		c.Abort()
+		return
+	}
+	W := bufio.NewWriter(file)
+	data, _ := json.Marshal(schedule)
+	W.Write(data)
+	W.Flush()
+	defer file.Close()
+	// TODO: sql save
+	//Db.Where("id ")
 	c.JSON(200, gin.H{
 		"code":     1,
 		"schedule": res,
