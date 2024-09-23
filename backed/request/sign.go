@@ -30,8 +30,8 @@ func Login(c *gin.Context) {
 	//c.Request.
 	if len(data["staff_id"].(string)) == 0 {
 		c.JSON(200, gin.H{
-			"code":    0,
-			"message": "用户名非法",
+			"code":  0,
+			"error": "用户名非法",
 		})
 		return
 	}
@@ -40,16 +40,16 @@ func Login(c *gin.Context) {
 	err := Db.Where("staff_id = ?", is.StaffId).First(&is).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "账号或密码错误",
+			"code":  0,
+			"error": "账号或密码错误",
 		})
 		return
 	}
 	isPassword := bcrypt.CompareHashAndPassword([]byte(is.Password), []byte(data["password"].(string)))
 	if isPassword != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "账号或密码错误",
+			"code":  0,
+			"error": "账号或密码错误",
 		})
 		return
 	}
@@ -64,13 +64,11 @@ func Register(c *gin.Context) {
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"code":   0,
-			"result": err.Error(),
+			"code":  0,
+			"error": "bad request",
 		})
 		return
 	}
-
-	binary.InfoLog.Println(data.Msg())
 
 	//if !Rule_name.MatchString(data.Name) {
 	//	c.JSON(200, gin.H{
