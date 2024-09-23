@@ -37,6 +37,8 @@
 <script>
 import { ref } from 'vue';
 import axios, {all} from 'axios';
+import router from "@/router/index.js";
+
 export default {
     name: 'AuthForm',
     setup() {
