@@ -72,13 +72,13 @@ func Register(c *gin.Context) {
 
 	binary.InfoLog.Println(data.Msg())
 
-	if !Rule_name.MatchString(data.Name) {
-		c.JSON(200, gin.H{
-			"code":    0,
-			"message": "用户名非法",
-		})
-		return
-	}
+	//if !Rule_name.MatchString(data.Name) {
+	//	c.JSON(200, gin.H{
+	//		"code":    0,
+	//		"message": "用户名非法",
+	//	})
+	//	return
+	//}
 	if !Rule_password.MatchString(data.Password) {
 		c.JSON(200, gin.H{
 			"code":    0,
