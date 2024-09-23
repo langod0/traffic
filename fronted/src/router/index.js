@@ -31,7 +31,7 @@ const routes = [
   },
     {
     path: '/forget',
-    component: () => import('../components/forgetpage.vue')
+    component: () => import('../components/forget_page.vue')
   },
   {
     path: '/shows',
