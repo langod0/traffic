@@ -193,7 +193,10 @@ func ForgetPassword(c *gin.Context) {
 	}
 	var Acc Account
 	if err := Db.Where("email = ?", email).First(&Acc).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "invalid user",
+		})
 		c.Abort()
 		return
 	}

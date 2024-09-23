@@ -83,17 +83,19 @@ func EmailVerificationCode(c *gin.Context) {
 	e := data["email"].(string)
 	if len(e) == 0 || !Rule_email.MatchString(e) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    422,
-			"message": "邮箱非法",
+			"code":  0,
+			"error": "邮箱非法",
 		})
 		c.Abort()
 		return
 	}
 	if use != "register" && use != "reset" {
 		c.JSON(http.StatusBadRequest, gin.H{
+			"code":  0,
 			"error": "invalid request",
 		})
 		c.Abort()
+		return
 	}
 	SendOut(e, use)
 	c.JSON(http.StatusOK, gin.H{
