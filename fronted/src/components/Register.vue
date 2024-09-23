@@ -50,6 +50,7 @@ export default {
         const password1=ref('')
 
         const login = () => {
+
             // console.log('登录');
               password1.value=password.value
             axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'b'})
