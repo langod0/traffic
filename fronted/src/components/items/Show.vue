@@ -63,7 +63,7 @@ function Show_data() {
   isss.value = true;
   console.log(isss.value);
   axios
-    .post("/show_api/get_data/", {})
+    .post("pyapi/show_api/get_data/", {})
     .then((response) => {
       Numin.value = response.data.Numin;
       // console.log(1)

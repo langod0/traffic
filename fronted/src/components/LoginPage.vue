@@ -11,7 +11,7 @@
                 <input type="text" class="form_input" placeholder="密码" v-model="password" />
                 <div class="rout">
                     <!-- <a href="#" class="form_link"><button @click="forgotpassword()">忘记密码</button></a> -->
-                    <router-link to="/forgot-password" class="rou">忘记密码</router-link>
+                    <router-link to="/forget" class="rou">忘记密码</router-link>
                      <a href="/register" class="rou" style="text-decoration:none;" @click="toregister" >注册账号</a>
 <!--                    <router-link to="/register" class="rou">前往注册</router-link>-->
                 </div>
@@ -39,18 +39,60 @@
 
 <script setup>
 import { ref } from 'vue';
-// import {axios} from 'axios';
+import axios, {all} from 'axios';
 
 const activeContainer = ref('a');
 const email = ref('');
 const password = ref('');
-
+const dt=ref("")
 
 const LoginFunc=()=>{
   if (activeContainer.value==='a'){
-    // axios
-  }else{
+    axios.post("goapi/api/login",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+        .then((response) =>{
+            console.log(response.data)
+            if(response.data.code==0){
+              alert(response.data.message)
+            }else{
 
+              localStorage.setItem("Authorization", response.data.token);
+              router.push('/main2').then(()=>{
+              window.location.reload();
+              });
+            }
+        }
+        )
+  }else{
+    axios.post("goapi/api/login",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+        .then((response) =>
+        {
+          console.log(1)
+            if(response.data.code==0){
+              alert(response.data.message)
+            }else{
+              console.log(1)
+              // localStorage.setItem("Authorization", response.data.token);
+              router.push('/main2').then(()=>{
+              window.location.reload();
+              });
+            }
+        }
+        )
+    // axios.get("goapi/api/getinfo",{
+    //   headers: {
+    //     'Authorization': localStorage.getItem("Authorization")
+    //   }
+    // })
+    //     .then((response) => {
+    //         if(response.data.code==0){
+    //           alert(response.data.message)
+    //         }else{
+    //           router.push('/main').then(()=>{
+    //           window.location.reload();
+    //           });
+    //         }
+    //     }
+    //     )
   }
 }
 const switchForm = () => {
@@ -63,25 +105,25 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 
-function submitForm()  {
-
-    console.log('Email:', email.value);
-    console.log('Password:', password.value);
-    //Add your form submission logic here
-
-    //test code////////////////////////////////////////////////
-    if (activeContainer.value === 'b'){
-        router.push('/main').then(()=>{
-          window.location.reload();
-      });
-    }
-    else{
-        router.push('/main2').then(()=>{
-          window.location.reload();
-        });
-    }
-
-};
+// function submitForm()  {
+//
+//     console.log('Email:', email.value);
+//     console.log('Password:', password.value);
+//     //Add your form submission logic here
+//
+//     //test code////////////////////////////////////////////////
+//     if (activeContainer.value === 'b'){
+//         router.push('/main').then(()=>{
+//           window.location.reload();
+//       });
+//     }
+//     else{
+//         router.push('/main2').then(()=>{
+//           window.location.reload();
+//         });
+//     }
+//
+// };
 
 
 function forgotpassword() {

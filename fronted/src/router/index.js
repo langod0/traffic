@@ -29,6 +29,10 @@ const routes = [
     path: '/lines',
     component: () => import('../components/items/LineCreate.vue')
   },
+    {
+    path: '/forget',
+    component: () => import('../components/forgetpage.vue')
+  },
   {
     path: '/shows',
     component: () => import('../components/items/Show.vue')

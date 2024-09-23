@@ -34,7 +34,7 @@
                     </div>
                     <ul class="table">
                         <li>
-                            <router-link to="#" id="back">
+                            <router-link to="/" id="back">
                                 <img src="../assets/首页.png">
                                 <p class="content">首页</p>
                             </router-link>

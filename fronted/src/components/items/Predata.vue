@@ -52,7 +52,7 @@
     isss.value = true;
     console.log(isss.value);
     axios
-      .post("/pre_api/pre/", {})
+      .post("pyapi/pre_api/pre/", {})
       .then((response) => {
         Numin.value = response.data.Numin;
         // console.log(1)

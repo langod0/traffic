@@ -6,8 +6,9 @@
         <div class="form-warp">
             <form class="sign-in-form" v-if="!isSignUp">
                 <span class="form-title">管理员注册</span>
-                <input placeholder="email" />
-                <input type="password" placeholder="密码" />
+                <input placeholder="email" v-model="email"/>
+                <input type="password" placeholder="密码" v-model="password" />
+
                 <button class="submit-btn" @click.prevent="login">立即注册</button>
               <a href="/login" style="text-decoration:none;" >已有账号?</a>
             </form>
@@ -35,15 +36,31 @@
 
 <script>
 import { ref } from 'vue';
-
+import axios, {all} from 'axios';
 export default {
     name: 'AuthForm',
     setup() {
+      const email = ref('');
+        const password = ref('');
+
         const isSignUp = ref(false);
 
 
         const login = () => {
-            console.log('登录');
+            // console.log('登录');
+            axios.post("goapi/api/register",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+          .then((response) =>{
+            console.log(response.data)
+            if(response.data.code==0){
+              alert(response.data.message)
+            }else{
+
+              localStorage.setItem("Authorization", response.data.token);
+              router.push('/main2').then(()=>{
+              window.location.reload();
+              });
+            }
+         })
 
         };
 
@@ -53,7 +70,7 @@ export default {
 
         };
 
-        return { isSignUp, login, register };
+        return { isSignUp, login, register,email,password };
     },
 };
 </script>
