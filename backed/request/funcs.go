@@ -139,8 +139,8 @@ func FindStationLine(c *gin.Context) {
 	res := SubwayLine{}
 	err := Db.Where("name = ? ", ques).First(&res).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":  500,
+		c.JSON(http.StatusOK, gin.H{
+			"code":  0,
 			"error": "地铁线不存在",
 		})
 	}
@@ -154,7 +154,7 @@ func FindStationLine(c *gin.Context) {
 	`
 	var result []QueryLine
 	if err = Db.Raw(query, res.LineId).Scan(&result).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(200, gin.H{
 			"code":  0,
 			"error": "查找失败",
 		})
@@ -176,7 +176,7 @@ func FindStation(c *gin.Context) {
 	res := SubwayStation{}
 	err := Db.Where("name = ? ", ques).First(&res).Error
 	if err != nil || res.ID == 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(200, gin.H{
 			"code":  0,
 			"error": "地铁站不存在",
 		})

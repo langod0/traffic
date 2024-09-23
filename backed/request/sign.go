@@ -73,21 +73,21 @@ func Register(c *gin.Context) {
 	binary.InfoLog.Println(data.Msg())
 
 	if !Rule_name.MatchString(data.Name) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":    0,
 			"message": "用户名非法",
 		})
 		return
 	}
 	if !Rule_password.MatchString(data.Password) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":    0,
 			"message": "密码格式非法",
 		})
 		return
 	}
 	if !Rule_email.MatchString(data.Email) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":    0,
 			"message": "邮箱格式非法",
 		})
@@ -96,7 +96,7 @@ func Register(c *gin.Context) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":    0,
 			"message": "Error generating",
 		})
@@ -104,7 +104,7 @@ func Register(c *gin.Context) {
 	}
 	if binary.Setting.UseRedis {
 		if !binary.IsTrue(data.Email, data.Code) {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.JSON(200, gin.H{
 				"code":    0,
 				"message": "验证码错误",
 			})
@@ -120,7 +120,7 @@ func Register(c *gin.Context) {
 	var tmp Account
 	has := int64(0)
 	if Db.Where("email = ?", data.Email).Count(&has); has > 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
 			"message": "账号已存在",
 		})
@@ -165,7 +165,7 @@ func ForgetPassword(c *gin.Context) {
 	email := data["email"].(string)
 	password := data["password"].(string)
 	if !Rule_email.MatchString(email) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":  0,
 			"error": "邮箱格式非法",
 		})
@@ -173,7 +173,7 @@ func ForgetPassword(c *gin.Context) {
 		return
 	}
 	if !Rule_password.MatchString(password) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":  0,
 			"error": "密码格式非法",
 		})
@@ -183,7 +183,7 @@ func ForgetPassword(c *gin.Context) {
 	code := data["code"].(string)
 	if binary.Setting.UseRedis {
 		if !binary.IsTrue(email, code) {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.JSON(200, gin.H{
 				"code":  0,
 				"error": "验证码错误",
 			})
@@ -199,7 +199,7 @@ func ForgetPassword(c *gin.Context) {
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":  0,
 			"error": "Error generating",
 		})
