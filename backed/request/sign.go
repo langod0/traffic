@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 	c.BindJSON(&data)
 	//c.Request.
 	if len(data["staff_id"].(string)) == 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(200, gin.H{
 			"code":    0,
 			"message": "用户名非法",
 		})
@@ -47,7 +47,7 @@ func Login(c *gin.Context) {
 	}
 	isPassword := bcrypt.CompareHashAndPassword([]byte(is.Password), []byte(data["password"].(string)))
 	if isPassword != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
 			"message": "账号或密码错误",
 		})
@@ -64,6 +64,7 @@ func Register(c *gin.Context) {
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
+			"code":   0,
 			"result": err.Error(),
 		})
 		return

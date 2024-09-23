@@ -334,7 +334,7 @@ func GetInfo(c *gin.Context) {
 	var trains []Train
 	Db.Where("id != 0").Find(&stations)
 	Db.Where("line_id != 0").Find(&lines)
-	Db.Where("id != 无").Find(&trains)
+	Db.Where("id != '无'").Find(&trains)
 	c.JSON(200, gin.H{
 		"code":     1,
 		"user":     acc,

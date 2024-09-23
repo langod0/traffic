@@ -82,7 +82,7 @@ func ServeInit() {
 	// 注册账号
 	Api.POST("/register", Register)
 	// 查找用户
-	Api.GET("/getdrivers", GetUsers)
+	Api.GET("/getusers", GetUsers)
 	Api.GET("/ws", WebSocketHandle)
 	Api.POST("/calctrains", CalcSubway)
 	Api.POST("/calcschedule", CalcSchedule)
