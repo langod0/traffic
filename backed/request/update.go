@@ -100,6 +100,7 @@ func UpdateStation(c *gin.Context) {
 	Db.Where("id != 0").Find(&stations)
 	c.JSON(200, gin.H{
 		"code":     1,
+		"num":      len(stations),
 		"stations": stations,
 	})
 	return
@@ -188,6 +189,7 @@ func UpdateLine(c *gin.Context) {
 	Db.Where("line_id != 0").Find(&lines)
 	c.JSON(200, gin.H{
 		"code":  1,
+		"num":   len(lines),
 		"lines": lines,
 	})
 	return
@@ -354,6 +356,7 @@ func UpdateRelationship(c *gin.Context) {
 	Db.Find(&result)
 	c.JSON(200, gin.H{
 		"code":   1,
+		"num":    len(result),
 		"result": result,
 	})
 }

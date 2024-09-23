@@ -39,11 +39,19 @@ func Login(c *gin.Context) {
 	is.StaffId = data["staff_id"].(string)
 	err := Db.Where("staff_id = ?", is.StaffId).First(&is).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusOK, gin.H{
-			"code":  0,
-			"error": "账号或密码错误",
-		})
-		return
+		is.Email = is.StaffId
+		is.StaffId = ""
+		err = Db.Where("email = ?", is.Email).First(&is).Error
+		if binary.Setting.Debug {
+			binary.DebugLog.Println(is)
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusOK, gin.H{
+				"code":  0,
+				"error": "账号或密码错误",
+			})
+			return
+		}
 	}
 	isPassword := bcrypt.CompareHashAndPassword([]byte(is.Password), []byte(data["password"].(string)))
 	if isPassword != nil {
@@ -79,15 +87,15 @@ func Register(c *gin.Context) {
 	//}
 	if !Rule_password.MatchString(data.Password) {
 		c.JSON(200, gin.H{
-			"code":    0,
-			"message": "密码格式非法",
+			"code":  0,
+			"error": "密码格式非法",
 		})
 		return
 	}
 	if !Rule_email.MatchString(data.Email) {
 		c.JSON(200, gin.H{
-			"code":    0,
-			"message": "邮箱格式非法",
+			"code":  0,
+			"error": "邮箱格式非法",
 		})
 		return
 	}
@@ -95,16 +103,16 @@ func Register(c *gin.Context) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"code":    0,
-			"message": "Error generating",
+			"code":  0,
+			"error": "Error generating",
 		})
 		return
 	}
 	if binary.Setting.UseRedis {
 		if !binary.IsTrue(data.Email, data.Code) {
 			c.JSON(200, gin.H{
-				"code":    0,
-				"message": "验证码错误",
+				"code":  0,
+				"error": "验证码错误",
 			})
 			return
 		}
@@ -119,8 +127,8 @@ func Register(c *gin.Context) {
 	has := int64(0)
 	if Db.Where("email = ?", data.Email).Count(&has); has > 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "账号已存在",
+			"code":  0,
+			"error": "账号已存在",
 		})
 		return
 	}
@@ -143,11 +151,22 @@ func Updateinfo(c *gin.Context) {
 			"code":  0,
 		})
 		c.Abort()
+		return
 	}
 	Acc := Account{StaffId: staff_id.(string)}
 	Db.Where("staff_id = ?", Acc.StaffId).First(&Acc)
 	var tmp Account
 	c.ShouldBindJSON(&tmp)
+	var num int64
+	if Db.Where("email = ?", tmp.Email).Count(&num); num > 0 && Acc.Email != tmp.Email {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":  0,
+			"error": "email has been used",
+		})
+		c.Abort()
+		return
+	}
+	Acc.Name = tmp.Name
 	Acc.Email = tmp.Email
 	Acc.Phone = tmp.Phone
 	Acc.Sex = tmp.Sex

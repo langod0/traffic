@@ -17,10 +17,12 @@ const (
 )
 
 type ScheduleJson struct {
-	Date    string `json:"date"`
-	Shift   string `json:"shift"`
-	Class   string `json:"class"`
-	StaffId string `json:"staff_id"`
+	Schedule  []Shift    `json:"schedule"`
+	Drivers   [][]string `json:"drivers"`
+	Trains    []string   `json:"tracks"`
+	Type      []string   `json:"type"`
+	StartTime string     `json:"startTime,omitempty" binding:"required"`
+	EndTime   string     `json:"endTime,omitempty" binding:"required"`
 }
 type WorkingSchedule struct {
 	ID       uint   `gorm:"type:int;not null;primary key;unique;" json:"id" binding:"required"`
@@ -40,10 +42,10 @@ type Account struct {
 	gorm.Model `json:"-"`
 }
 type Train struct {
-	ID       string `gorm:"type:varchar(30);not null;primaryKey;unique;comment:'列车编号'" json:"id" binding:"required"`
-	Drivers  []Account
-	LineId   uint `gorm:"type:int" json:"line_id" binding:"required"`
-	Capacity uint `gorm:"type:int" json:"capacity" binding:"required"`
+	ID       string    `gorm:"type:varchar(30);not null;primaryKey;unique;comment:'列车编号'" json:"id" binding:"required"`
+	Drivers  []Account `json:"Drivers,omitempty"`
+	LineId   uint      `gorm:"type:int" json:"line_id" binding:"required"`
+	Capacity uint      `gorm:"type:int" json:"capacity" binding:"required"`
 }
 
 type SubwayLine struct {

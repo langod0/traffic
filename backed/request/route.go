@@ -68,7 +68,7 @@ func ServeInit() {
 	// 登录
 	Api.POST("/login", Login)
 	// 登录获取数据
-	Api.GET("getinfo", AuthMiddleware(), GetInfo)
+	Api.GET("/getinfo", AuthMiddleware(), GetInfo)
 	// 更新个人信息
 	Api.POST("/updateinfo", AuthMiddleware(), Updateinfo)
 	// 生成验证码
@@ -85,7 +85,7 @@ func ServeInit() {
 	Api.GET("/getusers", GetUsers)
 	Api.GET("/ws", WebSocketHandle)
 	Api.POST("/calctrains", CalcSubway)
-	Api.POST("/calcschedule", CalcSchedule)
+	Api.POST("/calcschedule", CreateSchedule)
 	Api.POST("/updateline", AuthMiddleware(), UpdateLine)
 	Api.POST("/updatestation", AuthMiddleware(), UpdateStation)
 	Api.POST("/updaterelations", AuthMiddleware(), UpdateRelationship)

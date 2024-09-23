@@ -114,12 +114,9 @@ type Quest struct {
 	Name      string    `json:"name" binding:"required"`
 	StartTime time.Time `json:"startTime,omitempty" binding:"required"`
 	EndTime   time.Time `json:"endTime,omitempty" binding:"required"`
-	Drivers   []struct {
-		ID    string `json:"id,omitempty" binding:"required"`
-		Class string `json:"class,omitempty" binding:"required"`
-	}
-	Trains []string `json:"trains,omitempty" binding:"required"`
-	Type   string   `json:"type,omitempty" binding:"required"`
+	Drivers   []string  `json:"drivers,omitempty" binding:"required"`
+	Trains    []string  `json:"trains,omitempty" binding:"required"`
+	Type      string    `json:"type,omitempty" binding:"required"`
 }
 type QueryLine struct {
 	Line_id         uint   `json:"line_id,omitempty"`
@@ -208,7 +205,7 @@ func FindStation(c *gin.Context) {
 }
 
 // 计算排班表
-func CalcSchedule(c *gin.Context) {
+func CreateSchedule(c *gin.Context) {
 	var quest Quest
 	err := c.BindJSON(&quest)
 	if err != nil {
@@ -227,39 +224,19 @@ func CalcSchedule(c *gin.Context) {
 		c.Abort()
 		return
 	}
-
-	var res Schedule
-	user := make([]string, 0)
-	var num int64
-	for _, v := range quest.Drivers {
-		if Db.Where("staff_id = ", v.ID).Count(&num); num == 0 {
-			user = append(user, v.ID)
-		}
-	}
-	if 0 != len(user) {
+	var jsondata ScheduleJson
+	tot := len(quest.Drivers)
+	number := len(quest.Trains)
+	if tot%number != 0 {
 		c.JSON(417, gin.H{
 			"code":  0,
-			"error": "users not found",
-			"users": user,
+			"error": "bad request",
 		})
 		c.Abort()
 		return
 	}
-	user = make([]string, 0)
-	for _, v := range quest.Trains {
-		if Db.Where("id = ", v).Count(&num); num == 0 {
-			user = append(user, v)
-		}
-	}
-	if 0 != len(user) {
-		c.JSON(417, gin.H{
-			"code":   0,
-			"error":  "trains not found",
-			"trains": user,
-		})
-		c.Abort()
-		return
-	}
+	jsondata.Drivers = make([][]string, tot/number)
+
 	if quest.Type == "2" {
 		if len(quest.Drivers)%3 != 0 {
 			c.JSON(417, gin.H{
@@ -278,6 +255,49 @@ func CalcSchedule(c *gin.Context) {
 			c.Abort()
 			return
 		}
+	}
+	var res Schedule
+	user := make([]string, 0)
+	mm := make(map[string]bool)
+	var num int64
+	for idx, v := range quest.Drivers {
+		if Db.Where("staff_id = ", v).Count(&num); num == 0 {
+			user = append(user, v)
+		}
+		jsondata.Drivers[idx/number] = append(jsondata.Drivers[idx/number], quest.Drivers[idx])
+		mm[v] = true
+	}
+	if 0 != len(user) {
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "users not found",
+			"users": user,
+		})
+		c.Abort()
+		return
+	}
+	if len(mm) != tot {
+		c.JSON(417, gin.H{
+			"code":  0,
+			"error": "driver repeated",
+		})
+		c.Abort()
+		return
+	}
+	user = make([]string, 0)
+	for _, v := range quest.Trains {
+		if Db.Where("id = ", v).Count(&num); num == 0 {
+			user = append(user, v)
+		}
+	}
+	if 0 != len(user) {
+		c.JSON(417, gin.H{
+			"code":   0,
+			"error":  "trains not found",
+			"trains": user,
+		})
+		c.Abort()
+		return
 	}
 	res = GenerateSchedule(quest.StartTime.Truncate(time.Hour*24), quest.EndTime.Truncate(time.Hour*24), quest.Type)
 
