@@ -55,7 +55,6 @@ const LoginFunc=()=>{
               alert(response.data.message)
             }else{
 
-
               localStorage.setItem("Authorization", response.data.token);
               router.push('/main2').then(()=>{
               window.location.reload();
