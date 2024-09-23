@@ -44,19 +44,21 @@ export default {
         const password = ref('');
 
         const isSignUp = ref(false);
-
+        const name="langgod"
+        const password1=ref('')
 
         const login = () => {
             // console.log('登录');
-            axios.post("goapi/api/register",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
+              password1.value=password.value
+            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'b'})
           .then((response) =>{
             console.log(response.data)
             if(response.data.code==0){
               alert(response.data.message)
             }else{
-
+              alert("注册成功")
               localStorage.setItem("Authorization", response.data.token);
-              router.push('/main2').then(()=>{
+              router.push('/login').then(()=>{
               window.location.reload();
               });
             }
@@ -66,11 +68,23 @@ export default {
 
 
         const register = () => {
-            console.log('注册');
+            axios.post("goapi/api/register",{"email":email.value,"password":password.value,"name":name.value,"again_password":password1.value,"usertype":'a'})
+          .then((response) =>{
+            console.log(response.data)
+            if(response.data.code==0){
+              alert(response.data.message)
+            }else{
+              alert("注册成功")
+              localStorage.setItem("Authorization", response.data.token);
+              router.push('/login').then(()=>{
+              window.location.reload();
+              });
+            }
+         })
 
         };
 
-        return { isSignUp, login, register,email,password };
+        return { isSignUp, login, register,email,password,name,password1};
     },
 };
 </script>
