@@ -72,7 +72,7 @@ const LoginFunc=()=>{
             }else{
               console.log(1)
               // localStorage.setItem("Authorization", response.data.token);
-              router.push('/main2').then(()=>{
+              router.push('/main').then(()=>{
               window.location.reload();
               });
             }
