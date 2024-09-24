@@ -19,7 +19,7 @@ const (
 type ScheduleJson struct {
 	Schedule  []Shift    `json:"schedule"`
 	Drivers   [][]string `json:"drivers"`
-	Trains    []string   `json:"tracks"`
+	Trains    []string   `json:"trains"`
 	Type      []string   `json:"type"`
 	StartTime string     `json:"startTime,omitempty" binding:"required"`
 	EndTime   string     `json:"endTime,omitempty" binding:"required"`
@@ -38,6 +38,7 @@ type Account struct {
 	StaffId    string `gorm:"type:varchar(20);unique;primaryKey;comment:'工号'" json:"staff_id" binding:"required"`
 	Post       string `gorm:"type:varchar(20);comment:'职位'" json:"post" binding:"required"`
 	Sex        string `gorm:"type:varchar(6);default:'male';comment:'性别'" json:"sex" binding:"required"`
+	ScheduleID uint   `gorm:"type:int;" json:"schedule_id" binding:"required"`
 	TrainId    string `gorm:"type:varchar(30); comment:'所属列车编号'" json:"train_id" binding:"required"`
 	gorm.Model `json:"-"`
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"main/binary"
 	"math"
 	"net/http"
 	"os"
@@ -63,19 +64,21 @@ func GenerateSchedule(startDate, endDate time.Time, Type string) Schedule {
 		cycle = FourDayCycle2
 	}
 	tot := len(cycle)
-	ld, rd := 0, tot-1
+	ld := 0
 	for i := startDate; !i.Equal(endDate); i = i.AddDate(0, 0, 1) {
 		var tt Shift
 		tt.Date = i.Format("2006-01-02")
-		for ld != rd {
+		for i, j := 0, ld; i < 4; i++ {
+			ld = (ld + 1) % tot
 			tt.Allot = append(tt.Allot, struct {
 				Shift string `json:"shift"`
 				Class string `json:"class"`
-			}{Class: classes[ld], Shift: cycle[ld]})
-			ld = (ld + 1) % tot
+			}{Class: classes[i], Shift: cycle[j]})
+
+			j = (j + 1) % tot
 		}
+		ld = (ld + 1) % tot
 		shifts = append(shifts, tt)
-		rd = (rd + tot - 1) % tot
 	}
 	return shifts
 }
@@ -114,12 +117,12 @@ func CalcSubway(c *gin.Context) {
 }
 
 type Quest struct {
-	Name      string    `json:"name" binding:"required"`
-	StartTime time.Time `json:"startTime,omitempty" binding:"required"`
-	EndTime   time.Time `json:"endTime,omitempty" binding:"required"`
-	Drivers   []string  `json:"drivers,omitempty" binding:"required"`
-	Trains    []string  `json:"trains,omitempty" binding:"required"`
-	Type      string    `json:"type,omitempty" binding:"required"`
+	Name      string   `json:"name" binding:"required"`
+	StartTime string   `json:"startTime,omitempty" binding:"required"`
+	EndTime   string   `json:"endTime,omitempty" binding:"required"`
+	Drivers   []string `json:"drivers,omitempty" binding:"required"`
+	Trains    []string `json:"trains,omitempty" binding:"required"`
+	Type      string   `json:"type,omitempty" binding:"required"`
 }
 type QueryLine struct {
 	Line_id         uint   `json:"line_id,omitempty"`
@@ -210,34 +213,33 @@ func FindStation(c *gin.Context) {
 // 计算排班表
 func CreateSchedule(c *gin.Context) {
 	val, has := c.Get("isadmin")
-	if !has {
+	val2, has2 := c.Get("staff_id")
+	if !has || !has2 {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":  0,
 			"error": "Invalid token",
 		})
+		c.Abort()
+		if binary.Setting.Debug {
+			binary.DebugLog.Println(has, has2)
+		}
+		return
 	}
 	can := val.(bool)
 	if !can {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":  0,
-			"error": "bad request",
+			"error": "no right to create",
 		})
 		c.Abort()
 		return
-	}
-	val, has = c.Get("staff_id")
-	if !has {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":  0,
-			"error": "Invalid token",
-		})
 	}
 	var quest Quest
 	err := c.BindJSON(&quest)
 	if err != nil {
 		c.JSON(417, gin.H{
 			"code":  0,
-			"error": "bad request",
+			"error": "failed to bind JSON",
 		})
 		c.Abort()
 		return
@@ -293,7 +295,7 @@ func CreateSchedule(c *gin.Context) {
 	mm := make(map[string]bool)
 	var num int64
 	for idx, v := range quest.Drivers {
-		if Db.Where("staff_id = ", v).Count(&num); num == 0 {
+		if Db.Model(&Account{}).Where("staff_id = ?", v).Count(&num); num == 0 {
 			user = append(user, v)
 		}
 		jsondata.Drivers[idx/number] = append(jsondata.Drivers[idx/number], quest.Drivers[idx])
@@ -319,9 +321,10 @@ func CreateSchedule(c *gin.Context) {
 	user = make([]string, 0)
 	mm = make(map[string]bool)
 	for _, v := range quest.Trains {
-		if Db.Where("id = ", v).Count(&num); num == 0 {
+		if Db.Model(&Train{}).Where("id = ?", v).Count(&num); num == 0 {
 			user = append(user, v)
 		}
+		jsondata.Trains = append(jsondata.Trains, v)
 		mm[v] = true
 	}
 	if len(mm) != number {
@@ -342,13 +345,31 @@ func CreateSchedule(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	res = GenerateSchedule(quest.StartTime.Truncate(time.Hour*24), quest.EndTime.Truncate(time.Hour*24), quest.Type)
+	var st, fi time.Time
+	st, err = time.Parse("2006-01-02", quest.StartTime)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":  0,
+			"error": "time error",
+		})
+	}
+	fi, err = time.Parse("2006-01-02", quest.EndTime)
+	if err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":  0,
+			"error": "time error",
+		})
+	}
+	res = GenerateSchedule(st.Truncate(time.Hour*24), fi.Truncate(time.Hour*24), quest.Type)
 	jsondata.Schedule = res
-	jsondata.StartTime = quest.StartTime.Format("2006-01-02")
-	jsondata.EndTime = quest.EndTime.Format("2006-01-02")
+	jsondata.StartTime = quest.StartTime
+	jsondata.EndTime = quest.EndTime
+	//jsondata.StartTime = quest.StartTime.Format("2006-01-02")
+	//jsondata.EndTime = quest.EndTime.Format("2006-01-02")
 	var schedule WorkingSchedule
 	schedule.Name = quest.Name
-	schedule.Filename = time.Now().Format("2006-01-02_03-04_05") + val.(string) + ".json"
+	schedule.Filename = time.Now().Format("2006-01-02_03-04_05") + val2.(string) + ".json"
 	file, err := os.Create("./data/" + schedule.Filename)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -359,15 +380,78 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 	W := bufio.NewWriter(file)
-	data, _ := json.Marshal(schedule)
+	data, _ := json.Marshal(jsondata)
 	W.Write(data)
 	W.Flush()
 	defer file.Close()
+	var tmp WorkingSchedule
+	if err := Db.Model(&WorkingSchedule{}).Order("id DESC").First(&tmp).Error; err != nil {
+		tmp.ID = 2
+	} else {
+		tmp.ID++
+	}
+	tmp.Name = quest.Name
+	tmp.Filename = schedule.Filename
+	Db.Create(&tmp)
 	// TODO: sql save
 	//Db.Where("id ")
 	c.JSON(200, gin.H{
 		"code":     1,
 		"schedule": res,
+	})
+}
+func GetSchedules(c *gin.Context) {
+	val, has := c.Get("isadmin")
+	if !has {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "Invalid token",
+		})
+		c.Abort()
+		return
+	}
+	can := val.(bool)
+	if !can {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":  0,
+			"error": "no right to create",
+		})
+		c.Abort()
+		return
+	}
+	var Qs []WorkingSchedule
+	Db.Model(&WorkingSchedule{}).Where("id != 0").Find(&Qs)
+	var result []ScheduleJson
+	for _, v := range Qs {
+		file, err := os.Open("./data/" + v.Filename)
+		if err != nil {
+			binary.DebugLog.Println(err)
+			c.JSON(200, gin.H{
+				"code":  0,
+				"error": "file not found ",
+			})
+			c.Abort()
+			return
+		}
+		rd := json.NewDecoder(file)
+		var schedule ScheduleJson
+		err = rd.Decode(&schedule)
+		if err != nil {
+			binary.DebugLog.Println(err)
+			c.JSON(200, gin.H{
+				"code":  0,
+				"error": "system error ",
+			})
+			c.Abort()
+			return
+		}
+		result = append(result, schedule)
+		file.Close()
+	}
+	c.JSON(200, gin.H{
+		"code":      1,
+		"num":       len(result),
+		"schedules": result,
 	})
 }
 
@@ -411,7 +495,7 @@ func GetInfo(c *gin.Context) {
 	acc := Account{
 		StaffId: staff_id.(string),
 	}
-	Db.First(&acc)
+	Db.Where("staff_id = ?", acc.StaffId).First(&acc)
 
 	var stations []SubwayStation
 	var lines []SubwayLine
@@ -419,11 +503,39 @@ func GetInfo(c *gin.Context) {
 	Db.Where("id != 0").Find(&stations)
 	Db.Where("line_id != 0").Find(&lines)
 	Db.Where("id != '无'").Find(&trains)
+	//var schedule ScheduleJson
+	//if acc.ScheduleID != 0 {
+	//	var tmp WorkingSchedule
+	//	Db.Model(&WorkingSchedule{}).Where("id = ?", acc.ScheduleID).First(&tmp)
+	//	file, err := os.Open("./data/" + tmp.Filename)
+	//	if err != nil {
+	//		binary.DebugLog.Println(err)
+	//		c.JSON(200, gin.H{
+	//			"code":  0,
+	//			"error": "file not found ",
+	//		})
+	//		c.Abort()
+	//		return
+	//	}
+	//	rd := json.NewDecoder(file)
+	//	err = rd.Decode(&schedule)
+	//	if err != nil {
+	//		binary.DebugLog.Println(err)
+	//		c.JSON(200, gin.H{
+	//			"code":  0,
+	//			"error": "system error ",
+	//		})
+	//		c.Abort()
+	//		return
+	//	}
+	//	defer file.Close()
+	//}
 	c.JSON(200, gin.H{
 		"code":     1,
 		"user":     acc,
 		"lines":    lines,
 		"stations": stations,
 		"trains":   trains,
+		//"schedule": schedule,
 	})
 }
