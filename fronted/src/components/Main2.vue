@@ -544,12 +544,12 @@ ul li {
 
 /* app-main */
 .app-main{
-    height: 740px;
-    width:1300px;
+     height: 740px;
+    width:1370px;
     position: absolute;
     /* border-radius: 30px; */
     top:0px;
-    left:200px;
+    left:100px;
     background-color: rgba(255, 255, 255, 0.5);
 }
 </style>

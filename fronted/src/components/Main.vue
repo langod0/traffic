@@ -42,13 +42,13 @@
                         <li >
                             <button @click="addLines" id="router">
                                 <img src="../assets/线路.png">
-                                <p class="content">创建线路</p>
+                                <p class="content">信息增改</p>
                             </button>
                         </li>
                         <li>
                             <button @click="addInfo" id="router">
                                 <img src="../assets/填写.png">
-                                <p class="content">填写信息</p>
+                                <p class="content">创建排班</p>
                             </button>
                         </li>
                         <li>
@@ -576,11 +576,11 @@ li:hover img {
 /* app-main */
 .app-main{
     height: 740px;
-    width:1300px;
+    width:1370px;
     position: absolute;
     /* border-radius: 30px; */
     top:0px;
-    left:200px;
+    left:100px;
     background-color: rgba(255, 255, 255, 0.5);
 }
 

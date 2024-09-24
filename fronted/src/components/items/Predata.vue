@@ -209,7 +209,7 @@
   }
   /* 可选：为图表容器添加样式 */
   .showb {
-    background-color: rgb(132, 159, 205);
+    background-color: rgb(185, 235, 235);
     width: 120px;
     height: 40px;
     border-radius: 10px;
@@ -219,7 +219,7 @@
     font-weight: bold;
   }
   .showb:hover {
-    background-color: rgb(185, 235, 235);
+    background-color: rgb(132, 159, 205);
   }
   .bs {
     float: left;
@@ -256,7 +256,7 @@
   }
   .btns {
     margin-left: 50px;
-    background-color: rgb(132, 159, 205);
+    background-color: rgb(206, 216, 234);
     width: 120px;
     height: 38px;
     border-radius: 10px;
@@ -266,7 +266,7 @@
     font-weight: bold;
   }
   .btns:hover {
-    background-color: rgb(168, 195, 241);
+    background-color: rgb(132, 159, 205);
     font-size: 19px;
   }
   </style>

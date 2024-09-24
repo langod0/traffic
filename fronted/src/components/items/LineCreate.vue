@@ -5,6 +5,8 @@
     <button @click="getsta"  class="mb">查看站点信息</button>
     <button @click="gettrains" class="mb">查看列车信息</button>
     <button @click="createLine" class="mb">创建线路</button>
+    <button @click="createstation" class="mb">创建站点</button>
+    <button @click="createtrain" class="mb">创建列车</button>
 
   </div>
   <div class="mainline">
@@ -15,6 +17,11 @@
       <el-table-column >
         <template #default="scope">
         <el-button  @click="updata1(scope.row)">更改信息</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column >
+        <template #default="scope">
+        <el-button  @click="delete1(scope.row)">删除信息</el-button>
         </template>
       </el-table-column>
 
@@ -28,6 +35,11 @@
       <el-table-column >
         <template #default="scope">
         <el-button  @click="updata2(scope.row)">更改信息</el-button>
+        </template>
+      </el-table-column>c
+      <el-table-column >
+        <template #default="scope">
+        <el-button  @click="delete2(scope.row)">删除信息</el-button>
         </template>
       </el-table-column>
 
@@ -43,6 +55,11 @@
         <el-button  @click="updata3(scope.row)">更改信息</el-button>
         </template>
       </el-table-column>
+      <el-table-column >
+        <template #default="scope">
+        <el-button  @click="delete3(scope.row)">删除信息</el-button>
+        </template>
+      </el-table-column>
 <!--      <el-table-column prop="name" label="Name" width="200"   />-->
 <!--    <el-table-column prop="address" label="Address" />-->
   </el-table>
@@ -51,9 +68,9 @@
     <form @submit.prevent="createLine" >
       <div class="form-content">
         <label for="line-name">线路名称:</label>
-        <input type="text" id="line-name" v-model="newlinename" placeholder="线路名称" required>
+        <input type="text" id="line-name" v-model="new_line_name" placeholder="线路名称" required>
       </div>
-      <button type="submit">提交</button>
+      <button type="submit" @click="upline">提交</button>
     </form>
   </div>
   <div style="width: 80%;height: 80%;margin-left: 100px;margin-top: 60px;background-color: white;float: left" v-if="f5">
@@ -93,6 +110,38 @@
         </div>
 
     </div>
+    <div class="line-create" v-if="f8">
+    <h2>创建新站点</h2>
+    <form @submit.prevent="createLine" >
+      <div class="form-content">
+        <label for="line-name">站点名称:</label>
+        <input type="text" id="line-name" v-model="new_station_name" placeholder="站点名称" required>
+        <label for="line-name">站点经度:</label>
+        <input type="text" id="line-name" v-model="new_station_lon" placeholder="站点经度" required>
+        <label for="line-name">站点纬度:</label>
+        <input type="text" id="line-name" v-model="new_station_lat" placeholder="站点纬度" required>
+
+
+      </div>
+      <button type="submit" @click="upstation">提交</button>
+    </form>
+  </div>
+    <div class="line-create" v-if="f9">
+    <h2>创建新列车</h2>
+    <form @submit.prevent="createLine" >
+      <div class="form-content">
+        <label for="line-name">列车名称:</label>
+        <input type="text" id="line-name" v-model="new_train_name" placeholder="列车名称" required>
+        <label for="line-name">列车ID</label>
+        <input type="text" id="line-name" v-model="new_train_id" placeholder="列车ID" required>
+        <label for="line-name">列车载客量:</label>
+        <input type="text" id="line-name" v-model="new_train_cap" placeholder="列车载客量" required>
+        <label for="line-name">列车所在线路编号:</label>
+        <input type="text" id="line-name" v-model="new_train_lineid" placeholder="列车所在线路编号" required>
+      </div>
+      <button type="submit" @click="uptrain">提交</button>
+    </form>
+  </div>
   </div>
 </template>
 
@@ -108,7 +157,9 @@ const f4=ref(false)
 const f5=ref(false)
 const f6=ref(false)
 const f7=ref(false)
-    const newlinename=ref('')
+const f8=ref(false)
+const f9=ref(false)
+    const new_line_name=ref('')
 const lines=ref("")
 const stations=ref("")
 const  trains=ref("")
@@ -123,6 +174,13 @@ const station_lat=ref("")
 const train_id=ref("")
 const train_line_id=ref("")
 const train_capacity=ref("")
+const new_train_name=ref("")
+const new_train_cap=ref("")
+const new_train_id=ref("")
+const new_train_lineid=ref("")
+const new_station_name=ref("")
+const new_station_lon=ref("")
+const new_station_lat=ref("")
 const updata1=(e)=>{
       now.value=e;
       f1.value = false
@@ -132,13 +190,15 @@ const updata1=(e)=>{
     f5.value=true
   f6.value=false
   f7.value=false
+  f8.value=false
+  f9.value=false
   line_id.value=now.value["line_id"]
   line_id.value=Number(line_id.value)
   line_name.value=now.value["name"]
 
 }
 const updatan1=()=>{
-     axios.post("goapi/api/updateline",{"line_id":line_id,"name":line_name,"use":0})
+     axios.post("goapi/api/updateline",{"line_id":line_id.value,"name":line_name.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
               alert("更新成功")
@@ -149,10 +209,10 @@ const updatan1=()=>{
 
 }
 const updatan2=()=>{
-   axios.post("goapi/api/",)
+   axios.post("goapi/api/updatestation",{"id":station_id.value,"name":station_name.value,"lon":station_lon.value,"lat":station_lat.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-
+                alert("更新成功")
             }else{
               alert(response.data.error)
             }
@@ -162,10 +222,10 @@ const updatan2=()=>{
           })
 }
 const updatan3=()=>{
-    axios.post("goapi/api/",)
+    axios.post("goapi/api/updatetrain",{"id":String(train_id.value),"line_id":Number(train_line_id.value),"cap":Number(train_capacity.value),"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-
+              alert("更新成功")
             }else{
               alert(response.data.error)
             }
@@ -183,6 +243,8 @@ const updata2=(e)=>{
     f5.value=false
   f6.value=true
   f7.value=false
+  f8.value=false
+  f9.value=false
   station_id.value=now.value["id"]
   station_name.value=now.value["name"]
   station_lon.value=now.value["lon"]
@@ -197,24 +259,31 @@ const updata3=(e)=>{
     f5.value=false
   f6.value=false
   f7.value=true
+  f8.value=false
+  f9.value=false
 train_id.value=now.value["id"]
 train_line_id.value=now.value["line_id"]
 train_capacity.value=now.value["capacity"]
 }
-  const createLine=()=> {
-    // Logic to create a new line and store it in Vuex or local state
-    // console.log('创建线路:', this.newLineName);
-    f1.value = false
-    f2.value = false
-    f3.value = true
-    f4.value=false
-    f5.value=false
-    f6.value=false
-  f7.value=false
-    axios.post("goapi/api/",)
+const delete1=(e)=>{
+      now.value=e;
+    axios.post("goapi/api/updateline",{"line_id":now.value["line_id"],"name":now.value["name"],"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-
+              alert("删除成功")
+              getline()
+            }else{
+              alert(response.data.error)
+            }
+          })
+}
+const delete2=(e)=>{
+      now.value=e;
+       axios.post("goapi/api/updatestation",{"id":now.value["id"],"name":now.value["name"],"lon":now.value["lon"],"lat":now.value["lat"],"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+                alert("删除成功")
+              getsta()
             }else{
               alert(response.data.error)
             }
@@ -222,7 +291,97 @@ train_capacity.value=now.value["capacity"]
           .catch((error)=>{
             console.log(error)
           })
+}
+const  delete3=(e)=>{
+      now.value=e
+      axios.post("goapi/api/updatetrain",{"id":String(now.value["id"]),"line_id":Number(now.value["line_id"]),"cap":Number(now.value["capacity"]),"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+              alert("删除成功")
+              gettrains()
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
+}
+  const createLine=()=> {
+    // Logic to create a new line and store it in Vuex or local state
+    //  console.log('创建线路:', new_line_name.value);
+    f1.value = false
+    f2.value = false
+    f3.value = true
+    f4.value=false
+    f5.value=false
+    f6.value=false
+  f7.value=false
+    f8.value=false
+  f9.value=false
 
+
+  }
+  const createstation=()=> {
+      f1.value = false
+    f2.value = false
+    f3.value = false
+    f4.value=false
+    f5.value=false
+    f6.value=false
+  f7.value=false
+    f8.value=true
+  f9.value=false
+  }
+  const createtrain=()=> {
+          f1.value = false
+    f2.value = false
+    f3.value = false
+    f4.value=false
+    f5.value=false
+    f6.value=false
+  f7.value=false
+    f8.value=false
+  f9.value=true
+  }
+  const upline=()=>{
+      axios.post("goapi/api/updateline",{"line_id":10000,"name":new_line_name.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+              alert("添加成功")
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
+  }
+  const upstation=()=>{
+      axios.post("goapi/api/updatestation",{"id":1000000,"name":new_station_name.value,"lon":new_station_lon.value,"lat":new_station_lat.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+              alert("添加成功")
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
+  }
+  const uptrain=()=>{
+      axios.post("goapi/api/updatetrain",{"id":new_train_id.value,"cap":Number(new_train_cap.value),"line_id":Number(new_train_lineid.value),"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+              alert("添加成功")
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
   }
  const gettrains=()=>{
       f1.value=false
@@ -232,6 +391,8 @@ train_capacity.value=now.value["capacity"]
    f5.value=false
    f6.value=false
   f7.value=false
+   f8.value=false
+  f9.value=false
       axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
@@ -256,6 +417,8 @@ train_capacity.value=now.value["capacity"]
       f5.value=false
       f6.value=false
   f7.value=false
+      f8.value=false
+  f9.value=false
       axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
@@ -280,6 +443,8 @@ train_capacity.value=now.value["capacity"]
       f5.value=false
       f6.value=false
   f7.value=false
+      f8.value=false
+  f9.value=false
       axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
@@ -329,8 +494,8 @@ train_capacity.value=now.value["capacity"]
 .linese{
   text-align: right;
 }
-.mainline{
-width: 100%;
+.mainlines{
+width: 96%;
   height: 650px;
 }
 .mb{
@@ -346,7 +511,7 @@ width: 100%;
   text-align: right;
 }
 .mainline{
-width: 100%;
+width: 96%;
   height: 650px;
 }
 .mb{

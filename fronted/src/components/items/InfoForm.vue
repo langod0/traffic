@@ -1,177 +1,99 @@
 <template>
-  <div class="info-form-container">
-    <h2 class="form-title">线路及发车时刻表编号</h2>
-    <form @submit.prevent="generateSchedule" class="info-form">
-      <div class="form-group">
-        <label for="line-id">线编号:</label>
-        <input type="number" id="line-id" v-model.number="lineId" min="1" required>
-      </div>
 
-      <div class="form-group">
-        <label for="schedule-id">时刻表编号:</label>
-        <input type="number" id="schedule-id" v-model.number="scheduleId" min="1" required>
-      </div>
+  <div class="line-menu">
+    <button @click="getline" class="mb">查看并选择司机</button>
 
-      <div class="form-group">
-        <label for="peak-time-start">早高峰时间段:</label>
-        <input type="time" id="peak-time-start" v-model="peakStartTime" required>
-        <label for="peak-time-end">至:</label>
-        <input type="time" id="peak-time-end" v-model="peakEndTime" required>
-      </div>
 
-      <div class="form-group">
-        <label for="off-peak-time-start">晚高峰时间段:</label>
-        <input type="time" id="off-peak-time-start" v-model="offPeakStartTime" required>
-        <label for="off-peak-time-end">至:</label>
-        <input type="time" id="off-peak-time-end" v-model="offPeakEndTime" required>
-      </div>
+  </div>
+  <div class="mainline">
 
-      <div class="form-group">
-        <label for="peak-break-time">高峰休息时间:</label>
-        <input type="number" id="peak-break-time" v-model.number="peakBreakTime" min="0" step="1" required>
-        <label for="off-peak-break-time">平峰休息时间:</label>
-        <input type="number" id="off-peak-break-time" v-model.number="offPeakBreakTime" min="0" step="1" required>
-      </div>
+		<el-table :data="lines" height="100%" style="width: 100%" >
+      <el-table-column prop="line_id" label="Line_id" width="200" ></el-table-column>
+    <el-table-column prop="name" label="Name" width="200"   />
+      <el-table-column >
+        <template #default="scope">
+        <el-button  @click="updata1(scope.row)">更改信息</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column >
+        <template #default="scope">
+        <el-button  @click="delete1(scope.row)">删除信息</el-button>
+        </template>
+      </el-table-column>
 
-      <div class="form-group">
-        <label for="disinfect-interval">消毒间隔次数:</label>
-        <input type="number" id="disinfect-interval" v-model.number="disinfectInterval" min="0" step="1" required>
-        <label for="disinfect-extra-break-time">消毒额外休息时间:</label>
-        <input type="number" id="disinfect-extra-break-time" v-model.number="disinfectExtraBreakTime" min="0" step="1"
-          required>
-      </div>
 
-      <div class="form-group">
-        <label for="max-bus-count">最大车辆数:</label>
-        <input type="number" id="max-bus-count" v-model.number="maxBusCount" min="1" required>
-      </div>
-      <div>
-        <label for="upstream-max-bus-count">上行最大车辆数:</label>
-        <input type="number" id="upstream-max-bus-count" v-model.number="upstreamMaxBusCount" min="1" required>
-        <label for="downstream-max-bus-count">下行最大车辆数:</label>
-        <input type="number" id="downstream-max-bus-count" v-model.number="downstreamMaxBusCount" min="1" required>
-      </div>
-      <div class="form-group">
-        <label for="max-work-hours">最大工作时长:</label>
-        <select id="max-work-hours" v-model="maxWorkHours">
-          <option value="8">8小时</option>
-          <option value="10">10小时</option>
-          <option value="11">11小时</option>
-          <option value="12">12小时</option>
-        </select>
-      </div>
+  </el-table>
 
-      <div class="form-group">
-        <button type="submit">生成行车计划</button>
-      </div>
-    </form>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      lineId: null,
-      scheduleId: null,
-      peakStartTime: null,
-      peakEndTime: null,
-      offPeakStartTime: null,
-      offPeakEndTime: null,
-      peakBreakTime: null,
-      offPeakBreakTime: null,
-      disinfectInterval: null,
-      disinfectExtraBreakTime: null,
-      maxBusCount: null,
-      upstreamMaxBusCount: null,
-      downstreamMaxBusCount: null,
-      maxWorkHours: null
-    };
-  },
-  methods: {
-    generateSchedule() {
-      // Logic to generate the schedule based on user inputs
-      console.log('生成行车计划:', {
-        lineId: this.lineId,
-        scheduleId: this.scheduleId,
-        peakStartTime: this.peakStartTime,
-        peakEndTime: this.peakEndTime,
-        offPeakStartTime: this.offPeakStartTime,
-        offPeakEndTime: this.offPeakEndTime,
-        peakBreakTime: this.peakBreakTime,
-        offPeakBreakTime: this.offPeakBreakTime,
-        disinfectInterval: this.disinfectInterval,
-        disinfectExtraBreakTime: this.disinfectExtraBreakTime,
-        maxBusCount: this.maxBusCount,
-        upstreamMaxBusCount: this.upstreamMaxBusCount,
-        downstreamMaxBusCount: this.downstreamMaxBusCount,
-        maxWorkHours: this.maxWorkHours
-      });
+<script setup>
+import { ref } from 'vue';
+import axios, {all} from 'axios';
+import router from "@/router/index.js";
+
+  const staff=ref("")
+
+    const getline=()=>{
+      axios.get("goapi/api/getusers",{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
     }
-  }
-};
+
+
+
+
 </script>
 
 <style scoped>
-.info-form-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f4f4f4;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgb(167, 167, 167);
-  /* font-family: 'Arial', sans-serif; */
-  color: #ffffff;
-}
 
-.form-title {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #000000;
+.mainline{
+width: 96%;
+  height: 650px;
 }
-
-.info-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.form-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-label {
-  flex-shrink: 0;
+.mb{
   width: 120px;
-  /* Adjust the width as needed */
+  height: 40px;
+  margin-left: 40px;
+  cursor: pointer;
+  transition:0.4s;
+  border: none;
+  border-radius: 10px;
+}
+.mb:hover{
+  background-color: #ccc;
+  color: #fff;
+  font-size: 15px;
+
+}
+.line-menu{
+  margin-top: 20px;
+
+  width: 100%;
+  height: 60px;
+}
+
+.line-create label {
   font-weight: bold;
-  text-align: right;
-  margin-bottom: 5px;
-  color: #000000;
+  margin-bottom: 8px; /* Adjust the margin as needed for better spacing */
 }
 
-input,
-select {
-  flex-grow: 1;
+.line-create input {
   padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #1a1a1a;
+  margin-bottom: 15px; /* Keep the same or adjust as needed */
+  border: 1px solid #ccc;
   border-radius: 4px;
-  /* background-color: #cfcfcf; */
-  /* color: #fff; */
-  transition: all 0.3s ease-in-out;
 }
 
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #3b3b3b;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-button {
+.line-create button {
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
@@ -181,11 +103,7 @@ button {
   transition: background-color 0.3s;
 }
 
-button:hover {
+.line-create button:hover {
   background-color: #0056b3;
-}
-
-button:active {
-  transform: translateY(1px);
 }
 </style>
