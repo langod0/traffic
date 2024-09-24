@@ -50,7 +50,10 @@ func AuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code":  0,
+				"error": "Invalid token",
+			})
 			c.Abort()
 			return
 		}
