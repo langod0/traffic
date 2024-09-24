@@ -28,7 +28,10 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 从请求头获取 Token
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code":  0,
+				"error": "Authorization header is missing",
+			})
 			c.Abort()
 			return
 		}
@@ -40,7 +43,10 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if err != nil || !token.Valid {
 			if errors.Is(err, jwt.ErrTokenExpired) {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Token is expired"})
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"code":  0,
+					"error": "Token is expired",
+				})
 				c.Abort()
 				return
 			}
@@ -53,7 +59,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			staff_id := claims["staff_id"].(string)
 			tt := Account{}
 			if err := Db.Where("staff_id = ?", staff_id).First(&tt).Error; err != nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"code":  0,
+					"error": "Invalid token claims",
+				})
 				c.Abort()
 				return
 			}
@@ -63,7 +72,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Set("staff_id", claims["staff_id"])
 			c.Set("isadmin", tt.IsAdmin)
 		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code":  0,
+				"error": "Invalid token claims",
+			})
 			c.Abort()
 			return
 		}
