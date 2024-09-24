@@ -27,6 +27,7 @@ type ScheduleJson struct {
 type WorkingSchedule struct {
 	ID       uint   `gorm:"type:int;not null;primary key;unique;" json:"id" binding:"required"`
 	Name     string `gorm:"type:string" json:"name" binding:"required"`
+	UseIn    uint   `gorm:"type:int;default:0" json:"useIn" binding:"required"`
 	Filename string `gorm:"type:string" json:"filename" binding:"required"`
 }
 type Account struct {
