@@ -24,10 +24,13 @@
           <option value="all">都包含</option>
         </select>
         <button class="btns" @click="showdata">可视化展示</button>
+
       </div>
       <!-- <br> -->
       <div ref="chart" class="shows" v-if="isst"></div>
-      <p v-if="isst">推荐需要列车数[]</p>
+      <div style="float:left">
+      <p v-if="isss"  style="color: #122170;font-size: 18px" >推荐需要列车数[15,20]</p>
+        </div>
     </div>
   </template>
   
