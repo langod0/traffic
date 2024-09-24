@@ -27,6 +27,7 @@
       </div>
       <!-- <br> -->
       <div ref="chart" class="shows" v-if="isst"></div>
+      <p v-if="isst">推荐需要列车数[]</p>
     </div>
   </template>
   

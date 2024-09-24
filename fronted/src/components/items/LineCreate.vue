@@ -130,8 +130,7 @@
     <h2>创建新列车</h2>
     <form @submit.prevent="createLine" >
       <div class="form-content">
-        <label for="line-name">列车名称:</label>
-        <input type="text" id="line-name" v-model="new_train_name" placeholder="列车名称" required>
+
         <label for="line-name">列车ID</label>
         <input type="text" id="line-name" v-model="new_train_id" placeholder="列车ID" required>
         <label for="line-name">列车载客量:</label>

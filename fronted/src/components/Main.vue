@@ -78,7 +78,7 @@
                 </div>
                 <div class="main-info" v-if="isinfo">
                     <infovue/>
-                    <mapvue/>
+<!--                    <mapvue/>-->
                 </div>
                 <div class="main-table" v-if="istable">
                     <tablevue/>

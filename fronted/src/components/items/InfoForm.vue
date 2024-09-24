@@ -1,43 +1,96 @@
 <template>
 
   <div class="line-menu">
-    <button @click="getline" class="mb">查看并选择司机</button>
+    <button @click="getuse" class="mb">查看并选择司机</button>
 
 
   </div>
   <div class="mainline">
 
-		<el-table :data="lines" height="100%" style="width: 100%" >
-      <el-table-column prop="line_id" label="Line_id" width="200" ></el-table-column>
-    <el-table-column prop="name" label="Name" width="200"   />
-      <el-table-column >
+		<el-table :data="users" height="100%" style="width: 30%" >
+      <el-table-column prop="name" label="Name" width="100px" ></el-table-column>
+    <el-table-column prop="staff_id" label="Staff" width="100px"   />
+      <el-table-column prop="post" label="Post" width="100px"   />
+
+      <el-table-column :label="count" >
         <template #default="scope">
-        <el-button  @click="updata1(scope.row)">更改信息</el-button>
+        <el-checkbox
+          v-model="scope.row.check"
+          @change="checkbx(scope.row)">
+        </el-checkbox>
         </template>
       </el-table-column>
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="delete1(scope.row)">删除信息</el-button>
-        </template>
-      </el-table-column>
+
 
 
   </el-table>
-
+<el-transfer
+    v-model="value"
+    filterable
+    :filter-method="filterMethod"
+    filter-placeholder="State Abbreviations"
+    :data="data"
+  />
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref } from 'vue';
 import axios, {all} from 'axios';
 import router from "@/router/index.js";
 
-  const staff=ref("")
 
-    const getline=()=>{
+
+interface Option {
+  key: number
+  label: string
+  initial: string
+}
+
+const generateData = () => {
+  const data: Option[] = []
+  const states = [
+    'California',
+    'Illinois',
+    'Maryland',
+    'Texas',
+    'Florida',
+    'Colorado',
+    'Connecticut ',
+  ]
+  const initials = ['PP', 'IL', 'MD', 'TX', 'FL', 'CO', 'CT']
+  states.forEach((city, index) => {
+    data.push({
+      label: city,
+      key: index,
+      initial: initials[index],
+    })
+  })
+  return data
+}
+
+const data = ref<Option[]>(generateData())
+const value = ref([])
+
+const filterMethod = (query, item) => {
+  return item.initial.toLowerCase().includes(query.toLowerCase())
+}
+
+
+
+
+  const users=ref("")
+ const count=ref(0)
+
+    const getuse=()=>{
       axios.get("goapi/api/getusers",{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
+                users.value=response.data.drivers;
+                for(var i=0;i<users.value.length;i++){
+                  users.value[i].check= false
+                }
+
 
             }else{
               alert(response.data.error)
@@ -47,7 +100,13 @@ import router from "@/router/index.js";
             console.log(error)
           })
     }
-
+    const checkbx=(row)=> {
+      if(row.check==true){
+        count.value=count.value+1
+      }else{
+        count.value=count.value-1
+      }
+    }
 
 
 
