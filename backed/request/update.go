@@ -392,7 +392,7 @@ func UpdateTrains(c *gin.Context) {
 	if err != nil {
 		c.JSON(417, gin.H{
 			"code":  0,
-			"error": "bad request",
+			"error": "failed to bind json",
 		})
 		c.Abort()
 		return
