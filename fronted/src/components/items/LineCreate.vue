@@ -107,9 +107,8 @@
         线路编号：<label   class="inp">{{line_id}}</label><br>
         线路名称：<input type="text" v-model="line_name" class="inp"><br>
         <el-button @click="updatan1" >保存</el-button>
-        <el-button  @click="delete1(now)">删除信息</el-button>
+        <el-button @click="deline = true">删除信息</el-button>
       </div>
-<!--    </div>-->
     </el-dialog>
     <el-dialog v-model="stationexvisible" title="编辑站点" width="500">
 
@@ -120,7 +119,7 @@
         站点名称：<input type="text" v-model="station_name" class="inp"><br>
 
         <el-button @click="updatan2" >保存</el-button>
-        <el-button  @click="delete2(now)">删除信息</el-button>
+        <el-button  @click="destation=true">删除信息</el-button>
       </div>
 
     </el-dialog>
@@ -132,18 +131,81 @@
         capacity：<input type="text" v-model="train_capacity" class="inp"><br>
 
         <el-button @click="updatan3" >保存</el-button>
-        <el-button  @click="delete3(now)">删除信息</el-button>
+        <el-button  @click="detrain=true">删除信息</el-button>
 
 
     </div>
     </el-dialog>
-
+  <el-dialog v-model="deline"  width="400" style="margin-top: 400px">
+    <template #header="{ close, titleId, titleClass }">
+      <div class="my-header" style="align-items: center;display: flex;">
+         警告<el-icon :size="30" color="red"><WarnTriangleFilled /></el-icon>
+      </div>
+    </template>
+    <div>
+      <span>
+        确定要删除吗？
+      </span>
+    </div>
+    <br>
+    <el-button size="small" @click="deline=false">取消</el-button>
+    <el-button
+        type="danger"
+        size="small"
+        @click="deline=false,delete1(now)"
+    >
+      确定
+    </el-button>
+  </el-dialog>
+  <el-dialog v-model="destation"  width="400" style="margin-top: 400px">
+    <template #header="{ close, titleId, titleClass }">
+      <div class="my-header" style="align-items: center;display: flex;">
+        警告<el-icon :size="30" color="red"><WarnTriangleFilled /></el-icon>
+      </div>
+    </template>
+    <div>
+      <span>
+        确定要删除吗？
+      </span>
+    </div>
+    <br>
+    <el-button size="small" @click="destation=false">取消</el-button>
+    <el-button
+        type="danger"
+        size="small"
+        @click="destation=false,delete2(now)"
+    >
+      确定
+    </el-button>
+  </el-dialog>
+  <el-dialog v-model="detrain"  width="400" style="margin-top: 400px">
+    <template #header="{ close, titleId, titleClass }">
+      <div class="my-header" style="align-items: center;display: flex;">
+        警告<el-icon :size="30" color="red"><WarnTriangleFilled /></el-icon>
+      </div>
+    </template>
+    <div>
+      <span>
+        确定要删除吗？
+      </span>
+    </div>
+    <br>
+    <el-button size="small" @click="detrain=false">取消</el-button>
+    <el-button
+        type="danger"
+        size="small"
+        @click="detrain=false,delete2(now)"
+    >
+      确定
+    </el-button>
+  </el-dialog>
 </template>
 
 <script setup>
 import {onMounted, ref} from 'vue';
 import axios, {all} from 'axios';
 import router from "@/router/index.js";
+import { InfoFilled } from '@element-plus/icons-vue'
 
 const new_line_name=ref('')
 const lines=ref("")
@@ -173,7 +235,9 @@ const trainvisible = ref(false)
 const lineexvisible = ref(false)
 const stationexvisible = ref(false)
 const trainexvisible = ref(false)
-
+const deline = ref(false)
+const destation = ref(false)
+const detrain = ref(false)
 const updata1=(e)=>{
   lineexvisible.value=true;
       now.value=e;
@@ -266,24 +330,24 @@ const updata2=(e)=>{
 }
 const updata3=(e)=>{
   trainexvisible.value=true
-      now.value=e;
-train_id.value=now.value["id"]
-train_line_id.value=now.value["line_id"]
-train_capacity.value=now.value["capacity"]
+        now.value=e;
+  train_id.value=now.value["id"]
+  train_line_id.value=now.value["line_id"]
+  train_capacity.value=now.value["capacity"]
   refresh()
 }
 const delete1=(e)=>{
       now.value=e;
-    axios.post("goapi/api/updateline",{"line_id":now.value["line_id"],"name":now.value["name"],"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+      axios.post("goapi/api/updateline",{"line_id":now.value["line_id"],"name":now.value["name"],"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-              alert("删除成功")
-              getline()
+              // alert("删除成功")
+              // getline()
             }else{
               alert(response.data.error)
             }
           })
-  lineexvisible.value = false
+  lineexvisible.value= false
   refresh()
 }
 const delete2=(e)=>{

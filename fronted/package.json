@@ -14,7 +14,8 @@
     "element-plus": "^2.8.3",
     "vue": "^3.4.29",
     "vue-router": "^4.4.4",
-    "vue-seamless-scroll": "^1.1.23"
+    "vue-seamless-scroll": "^1.1.23",
+    "@element-plus/icons-vue": "^2.3.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",

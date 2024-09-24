@@ -7,9 +7,13 @@ import axios from "axios"
 import scroll from 'vue-seamless-scroll'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // Vue.prototype.$echarts = echarts
 const app = createApp(App);
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+}
 app.use(scroll)
 app.use(ElementPlus)
 // axios.defaults.baseURL = "http://localhost:8001"
