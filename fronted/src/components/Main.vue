@@ -34,10 +34,10 @@
                     </div>
                     <ul class="table">
                         <li>
-                            <router-link to="/" id="back">
-                                <img src="../assets/首页.png">
-                                <p class="content">首页</p>
-                            </router-link>
+                          <button @click="mains" id="router">
+                            <img src="../assets/首页.png">
+                            <p class="content">首页</p>
+                          </button>
                         </li>
                         <li >
                             <button @click="addLines" id="router">
@@ -73,6 +73,13 @@
                 </div>
             </div>
             <dev class="app-main">
+                <div class="main_lines" v-if="main">
+                  <div style="margin-left: 50px;margin-top: 50px;">
+
+                    <h1>欢迎回来，{{user.name}}</h1>
+                  </div>
+
+                </div>
                 <div class="main-lines" v-if="islines">
                     <linesvue/>
                 </div>
@@ -106,6 +113,7 @@ import tablevue from './items/ScheduleTable.vue'
 import mapvue from './items/Map.vue'
 import showvue from './items/Show.vue'
 import prevue from './items/Predata.vue'
+import axios from "axios";
 //地铁滑动
 let isSliding = ref(false);
 onMounted(() => {
@@ -113,16 +121,40 @@ setTimeout(() => {
     isSliding.value = true;
 }, 1000); // 延迟 1 秒后开始动画
 });
-
+const user =ref("")
+onMounted(()=>{
+  axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
+      .then((response)=>{
+        if(response.data.code==1) {
+          console.log(response.data.lines)
+          user.value = response.data.user
+        }else{
+          alert(response.data.error)
+        }
+      })
+      .catch((error)=>{
+        console.log(error)
+      })
+})
+let main = ref(true);
 let islines = ref(false);
 let istable = ref(false);
 let isinfo = ref(false);
 let isshow = ref(false);
 let ispre= ref(false);
 //lines组件
-
+function mains(){
+    main.value = true
+    islines.value = false;
+    isinfo.value = false;
+    istable.value = false;
+    isshow.value = false;
+    ispre.value = false;
+    console.log('1');
+}
 function addLines(){
     islines.value = true;
+    main.value = false;
     isinfo.value = false;
     istable.value = false;
     isshow.value = false;
@@ -134,6 +166,7 @@ function predata() {
     isinfo.value = false;
     istable.value = false;
     isshow.value = false;
+  main.value = false;
     ispre.value = true;
     console.log('1');
 }
@@ -141,6 +174,7 @@ function showdata(){
     islines.value = false;
     isinfo.value = false;
     istable.value = false;
+    main.value = false;
     isshow.value = true;
     ispre.value = false;
     console.log('1');
@@ -151,6 +185,7 @@ function showdata(){
 function addInfo(){
     isinfo.value = true;
     islines.value = false;
+    main.value = false;
     istable.value = false;
     isshow.value = false;
     ispre.value = false;
@@ -163,6 +198,7 @@ function addTable(){
     istable.value = true;
     isinfo.value = false;
     islines.value = false;
+    main.value = false;
     isshow.value = false;
     ispre.value = false;
     console.log('1');

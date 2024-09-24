@@ -1,164 +1,151 @@
 <template>
+  <el-tabs type="border-card" >
 
-  <div class="line-menu">
-    <button @click="getline" class="mb">查看线路信息</button>
-    <button @click="getsta"  class="mb">查看站点信息</button>
-    <button @click="gettrains" class="mb">查看列车信息</button>
-    <button @click="createLine" class="mb">创建线路</button>
-    <button @click="createstation" class="mb">创建站点</button>
-    <button @click="createtrain" class="mb">创建列车</button>
+    <el-tab-pane label="查看线路信息" >
+      <button @click="linevisible = true" class="mb">创建线路</button>
+      <div class="mainline">
 
-  </div>
-  <div class="mainline">
+        <el-table :data="lines" height="100%" style="width: 100%"  >
+          <el-table-column prop="line_id" label="Line_id" width="200" ></el-table-column>
+          <el-table-column prop="name" label="Name" width="200"   />
+          <el-table-column >
 
-		<el-table :data="lines" height="100%" style="width: 100%" v-if="f1" >
-      <el-table-column prop="line_id" label="Line_id" width="200" ></el-table-column>
-    <el-table-column prop="name" label="Name" width="200"   />
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="updata1(scope.row)">更改信息</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="delete1(scope.row)">删除信息</el-button>
-        </template>
-      </el-table-column>
-
-<!--    <el-table-column prop="address" label="Address" />-->
-  </el-table>
-    <el-table :data="stations" height="100%" style="width: 100%" v-if="f2" >
-    <el-table-column prop="id" label="id" width="200"  />
-    <el-table-column prop="lon" label="longitude" width="200"   />
-      <el-table-column prop="lat" label="latitude" width="200"   />
-      <el-table-column prop="name" label="Name" width="200"   />
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="updata2(scope.row)">更改信息</el-button>
-        </template>
-      </el-table-column>c
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="delete2(scope.row)">删除信息</el-button>
-        </template>
-      </el-table-column>
-
-<!--    <el-table-column prop="address" label="Address" />-->
-  </el-table>
-
-    <el-table :data="trains" height="100%" style="width: 100%" v-if="f4" >
-    <el-table-column prop="id" label="id" width="200"  />
-    <el-table-column prop="line_id" label="line_id" width="200"   />
-      <el-table-column prop="capacity" label="capacity" width="200"   />
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="updata3(scope.row)">更改信息</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column >
-        <template #default="scope">
-        <el-button  @click="delete3(scope.row)">删除信息</el-button>
-        </template>
-      </el-table-column>
-<!--      <el-table-column prop="name" label="Name" width="200"   />-->
-<!--    <el-table-column prop="address" label="Address" />-->
-  </el-table>
-  <div class="line-create" v-if="f3">
-    <h2>创建新线路</h2>
-    <form @submit.prevent="createLine" >
-      <div class="form-content">
-        <label for="line-name">线路名称:</label>
-        <input type="text" id="line-name" v-model="new_line_name" placeholder="线路名称" required>
+            <template #default="scope">
+              <el-button  @click="updata1(scope.row)">...</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <button type="submit" @click="upline">提交</button>
-    </form>
-  </div>
-  <div style="width: 80%;height: 80%;margin-left: 100px;margin-top: 60px;background-color: white;float: left" v-if="f5">
-      <div style="width: 400px;height: 300px;margin:0 auto;margin-top: 60px">
+    </el-tab-pane>
+    <el-tab-pane label="查看站点信息" >
+      <button @click="stationvisible=true" class="mb">创建站点</button>
 
-        <p style="text-align: center">线路信息更改</p>
+      <div class="mainline">
+        <el-table :data="stations" height="100%" style="width: 100%"  >
+          <el-table-column prop="id" label="id" width="200"  />
+          <el-table-column prop="lon" label="longitude" width="200"   />
+          <el-table-column prop="lat" label="latitude" width="200"   />
+          <el-table-column prop="name" label="Name" width="200"   />
+          <el-table-column >
+            <template #default="scope">
+              <el-button  @click="updata2(scope.row)">...</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-tab-pane>
+
+    <el-tab-pane label="查看列车信息" >
+      <button @click="trainvisible = true" class="mb">创建列车</button>
+
+      <div class="mainline">
+      <el-table :data="trains" height="100%" style="width: 100%"  >
+        <el-table-column prop="id" label="id" width="200"  />
+        <el-table-column prop="line_id" label="line_id" width="200"   />
+        <el-table-column prop="capacity" label="capacity" width="200"   />
+        <el-table-column>
+          <template #default="scope">
+            <el-button  @click="updata3(scope.row)">...</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    </el-tab-pane>
+  </el-tabs>
+    <el-dialog v-model="linevisible" title="创建新线路" width="500">
+      <div class="line-create" >
+        <h2>创建新线路</h2>
+        <form @submit.prevent="createLine" >
+          <div class="form-content">
+            <label for="line-name">线路名称:</label>
+            <input type="text" id="line-name" v-model="new_line_name" placeholder="线路名称" required>
+          </div>
+          <button type="submit" @click="upline">提交</button>
+        </form>
+      </div>
+    </el-dialog>
+    <el-dialog v-model="stationvisible" title="创建新站点" width="500">
+      <div class="line-create" >
+        <h2>创建新站点</h2>
+        <form @submit.prevent="createLine" >
+          <div class="form-content">
+            <label for="line-name">站点名称:</label>
+            <input type="text" id="line-name" v-model="new_station_name" placeholder="站点名称" required>
+            <label for="line-name">站点经度:</label>
+            <input type="text" id="line-name" v-model="new_station_lon" placeholder="站点经度" required>
+            <label for="line-name">站点纬度:</label>
+            <input type="text" id="line-name" v-model="new_station_lat" placeholder="站点纬度" required>
+
+
+          </div>
+          <button type="submit" @click="upstation">提交</button>
+        </form>
+      </div>
+
+    </el-dialog>
+    <el-dialog v-model="trainvisible" title="创建新列车" width="500">
+      <div class="line-create" >
+        <h2>创建新列车</h2>
+        <form @submit.prevent="createLine" >
+          <div class="form-content">
+            <label for="line-name">列车ID</label>
+            <input type="text" id="line-name" v-model="new_train_id" placeholder="列车ID" required>
+            <label for="line-name">列车载客量:</label>
+            <input type="text" id="line-name" v-model="new_train_cap" placeholder="列车载客量" required>
+            <label for="line-name">列车所在线路编号:</label>
+            <input type="text" id="line-name" v-model="new_train_lineid" placeholder="列车所在线路编号" required>
+          </div>
+          <button type="submit" @click="uptrain">提交</button>
+        </form>
+      </div>
+
+    </el-dialog>
+    <el-dialog v-model="lineexvisible" title="编辑线路" width="500">
+
+<!--    <div style="width: 80%;height: 80%;margin-left: 100px;margin-top: 60px;background-color: white;float: left" >-->
+      <div class="line-create">
         线路编号：<label   class="inp">{{line_id}}</label><br>
         线路名称：<input type="text" v-model="line_name" class="inp"><br>
-        <button @click="updatan1" class="bt" >提交</button>
+        <el-button @click="updatan1" >保存</el-button>
+        <el-button  @click="delete1(now)">删除信息</el-button>
+      </div>
+<!--    </div>-->
+    </el-dialog>
+    <el-dialog v-model="stationexvisible" title="编辑站点" width="500">
 
-        </div>
-
-    </div>
-    <div style="width: 80%;height: 80%;margin-left: 100px;margin-top: 60px;background-color: white;float: left" v-if="f6">
-      <div style="width: 400px;height: 300px;margin:0 auto;margin-top: 60px">
-
-        <p style="text-align: center">站点信息更改</p>
+      <div class="line-create">
         站点编号：<label   class="inp">{{station_id}}</label><br>
         &nbsp经&nbsp&nbsp&nbsp&nbsp度&nbsp：<input type="text" v-model="station_lon" class="inp"><br>
         &nbsp纬&nbsp&nbsp&nbsp&nbsp度&nbsp：<input type="text" v-model="station_lat" class="inp"><br>
         站点名称：<input type="text" v-model="station_name" class="inp"><br>
-        <button @click="updatan2" class="bt" >提交</button>
 
-        </div>
+        <el-button @click="updatan2" >保存</el-button>
+        <el-button  @click="delete2(now)">删除信息</el-button>
+      </div>
 
-    </div>
-    <div style="width: 80%;height: 80%;margin-left: 100px;margin-top: 60px;background-color: white;float: left" v-if="f7">
-      <div style="width: 400px;height: 300px;margin:0 auto;margin-top: 60px">
+    </el-dialog>
+    <el-dialog v-model="trainexvisible" title="编辑列车" width="500">
 
-        <p style="text-align: center">列车信息更改</p>
+      <div class="line-create">
         列车编号：<label   class="inp">{{train_id}}</label><br>
         线路编号：<input type="text" v-model="train_line_id" class="inp"><br>
         capacity：<input type="text" v-model="train_capacity" class="inp"><br>
 
-        <button @click="updatan3" class="bt" >提交</button>
+        <el-button @click="updatan3" >保存</el-button>
+        <el-button  @click="delete3(now)">删除信息</el-button>
 
-        </div>
 
     </div>
-    <div class="line-create" v-if="f8">
-    <h2>创建新站点</h2>
-    <form @submit.prevent="createLine" >
-      <div class="form-content">
-        <label for="line-name">站点名称:</label>
-        <input type="text" id="line-name" v-model="new_station_name" placeholder="站点名称" required>
-        <label for="line-name">站点经度:</label>
-        <input type="text" id="line-name" v-model="new_station_lon" placeholder="站点经度" required>
-        <label for="line-name">站点纬度:</label>
-        <input type="text" id="line-name" v-model="new_station_lat" placeholder="站点纬度" required>
+    </el-dialog>
 
-
-      </div>
-      <button type="submit" @click="upstation">提交</button>
-    </form>
-  </div>
-    <div class="line-create" v-if="f9">
-    <h2>创建新列车</h2>
-    <form @submit.prevent="createLine" >
-      <div class="form-content">
-
-        <label for="line-name">列车ID</label>
-        <input type="text" id="line-name" v-model="new_train_id" placeholder="列车ID" required>
-        <label for="line-name">列车载客量:</label>
-        <input type="text" id="line-name" v-model="new_train_cap" placeholder="列车载客量" required>
-        <label for="line-name">列车所在线路编号:</label>
-        <input type="text" id="line-name" v-model="new_train_lineid" placeholder="列车所在线路编号" required>
-      </div>
-      <button type="submit" @click="uptrain">提交</button>
-    </form>
-  </div>
-  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import axios, {all} from 'axios';
 import router from "@/router/index.js";
 
-    const f1=ref(false)
-    const f2=ref(false)
-    const f3=ref(false)
-const f4=ref(false)
-const f5=ref(false)
-const f6=ref(false)
-const f7=ref(false)
-const f8=ref(false)
-const f9=ref(false)
-    const new_line_name=ref('')
+const new_line_name=ref('')
 const lines=ref("")
 const stations=ref("")
 const  trains=ref("")
@@ -180,21 +167,54 @@ const new_train_lineid=ref("")
 const new_station_name=ref("")
 const new_station_lon=ref("")
 const new_station_lat=ref("")
-const updata1=(e)=>{
-      now.value=e;
-      f1.value = false
-    f2.value = false
-    f3.value = false
-    f4.value=false
-    f5.value=true
-  f6.value=false
-  f7.value=false
-  f8.value=false
-  f9.value=false
-  line_id.value=now.value["line_id"]
-  line_id.value=Number(line_id.value)
-  line_name.value=now.value["name"]
+const linevisible = ref(false)
+const stationvisible = ref(false)
+const trainvisible = ref(false)
+const lineexvisible = ref(false)
+const stationexvisible = ref(false)
+const trainexvisible = ref(false)
 
+const updata1=(e)=>{
+  lineexvisible.value=true;
+      now.value=e;
+    line_id.value=now.value["line_id"]
+    line_id.value=Number(line_id.value)
+    line_name.value=now.value["name"]
+
+}
+onMounted(()=>{
+  axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
+      .then((response)=>{
+        if(response.data.code==1) {
+          console.log(response.data.lines)
+          lines.value = response.data.lines
+          stations.value = response.data.stations
+          trains.value = response.data.trains
+          user.value = response.data.user
+        }else{
+          alert(response.data.error)
+        }
+      })
+      .catch((error)=>{
+        console.log(error)
+      })
+})
+const refresh = ()=>{
+  axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
+      .then((response)=>{
+        if(response.data.code==1) {
+          console.log(response.data.lines)
+          lines.value = response.data.lines
+          stations.value = response.data.stations
+          trains.value = response.data.trains
+          user.value = response.data.user
+        }else{
+          alert(response.data.error)
+        }
+      })
+      .catch((error)=>{
+        console.log(error)
+      })
 }
 const updatan1=()=>{
      axios.post("goapi/api/updateline",{"line_id":line_id.value,"name":line_name.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -205,7 +225,7 @@ const updatan1=()=>{
               alert(response.data.error)
             }
           })
-
+    refresh()
 }
 const updatan2=()=>{
    axios.post("goapi/api/updatestation",{"id":station_id.value,"name":station_name.value,"lon":station_lon.value,"lat":station_lat.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -219,6 +239,7 @@ const updatan2=()=>{
           .catch((error)=>{
             console.log(error)
           })
+  refresh()
 }
 const updatan3=()=>{
     axios.post("goapi/api/updatetrain",{"id":String(train_id.value),"line_id":Number(train_line_id.value),"cap":Number(train_capacity.value),"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -232,37 +253,24 @@ const updatan3=()=>{
           .catch((error)=>{
             console.log(error)
           })
+  refresh()
 }
 const updata2=(e)=>{
+  stationexvisible.value=true
       now.value=e;
-      f1.value = false
-    f2.value = false
-    f3.value = false
-    f4.value=false
-    f5.value=false
-  f6.value=true
-  f7.value=false
-  f8.value=false
-  f9.value=false
   station_id.value=now.value["id"]
   station_name.value=now.value["name"]
   station_lon.value=now.value["lon"]
   station_lat.value=now.value["lat"]
+  refresh()
 }
 const updata3=(e)=>{
+  trainexvisible.value=true
       now.value=e;
-     f1.value = false
-    f2.value = false
-    f3.value = false
-    f4.value=false
-    f5.value=false
-  f6.value=false
-  f7.value=true
-  f8.value=false
-  f9.value=false
 train_id.value=now.value["id"]
 train_line_id.value=now.value["line_id"]
 train_capacity.value=now.value["capacity"]
+  refresh()
 }
 const delete1=(e)=>{
       now.value=e;
@@ -275,6 +283,8 @@ const delete1=(e)=>{
               alert(response.data.error)
             }
           })
+  lineexvisible.value = false
+  refresh()
 }
 const delete2=(e)=>{
       now.value=e;
@@ -290,6 +300,8 @@ const delete2=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
+  stationexvisible.value = false
+  refresh()
 }
 const  delete3=(e)=>{
       now.value=e
@@ -305,44 +317,9 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
+  trainexvisible.value = false
+  refresh()
 }
-  const createLine=()=> {
-    // Logic to create a new line and store it in Vuex or local state
-    //  console.log('创建线路:', new_line_name.value);
-    f1.value = false
-    f2.value = false
-    f3.value = true
-    f4.value=false
-    f5.value=false
-    f6.value=false
-  f7.value=false
-    f8.value=false
-  f9.value=false
-
-
-  }
-  const createstation=()=> {
-      f1.value = false
-    f2.value = false
-    f3.value = false
-    f4.value=false
-    f5.value=false
-    f6.value=false
-  f7.value=false
-    f8.value=true
-  f9.value=false
-  }
-  const createtrain=()=> {
-          f1.value = false
-    f2.value = false
-    f3.value = false
-    f4.value=false
-    f5.value=false
-    f6.value=false
-  f7.value=false
-    f8.value=false
-  f9.value=true
-  }
   const upline=()=>{
       axios.post("goapi/api/updateline",{"line_id":10000,"name":new_line_name.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
@@ -355,6 +332,7 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
+    refresh()
   }
   const upstation=()=>{
       axios.post("goapi/api/updatestation",{"id":1000000,"name":new_station_name.value,"lon":new_station_lon.value,"lat":new_station_lat.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -368,6 +346,7 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
+    refresh()
   }
   const uptrain=()=>{
       axios.post("goapi/api/updatetrain",{"id":new_train_id.value,"cap":Number(new_train_cap.value),"line_id":Number(new_train_lineid.value),"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -381,86 +360,8 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
+    refresh()
   }
- const gettrains=()=>{
-      f1.value=false
-      f2.value=false
-      f3.value=false
-      f4.value=true
-   f5.value=false
-   f6.value=false
-  f7.value=false
-   f8.value=false
-  f9.value=false
-      axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
-          .then((response)=>{
-            if(response.data.code==1) {
-              console.log(response.data.lines)
-              lines.value = response.data.lines
-              stations.value = response.data.stations
-              trains.value = response.data.trains
-              user.value = response.data.user
-            }else{
-              alert(response.data.error)
-            }
-          })
-          .catch((error)=>{
-            console.log(error)
-          })
- }
-    const getline=()=>{
-      f1.value=true
-      f2.value=false
-      f3.value=false
-      f4.value=false
-      f5.value=false
-      f6.value=false
-  f7.value=false
-      f8.value=false
-  f9.value=false
-      axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
-          .then((response)=>{
-            if(response.data.code==1) {
-              console.log(response.data.lines)
-              lines.value = response.data.lines
-              stations.value = response.data.stations
-              trains.value = response.data.trains
-              user.value = response.data.user
-            }else{
-              alert(response.data.error)
-            }
-          })
-          .catch((error)=>{
-            console.log(error)
-          })
-    }
-    const getsta=()=>{
-      f1.value=false
-      f2.value=true
-      f3.value=false
-      f4.value=false
-      f5.value=false
-      f6.value=false
-  f7.value=false
-      f8.value=false
-  f9.value=false
-      axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
-          .then((response)=>{
-            if(response.data.code==1) {
-              console.log(response.data.lines)
-              lines.value = response.data.lines
-              stations.value = response.data.stations
-              trains.value = response.data.trains
-              user.value = response.data.user
-            }else{
-              alert(response.data.error)
-            }
-          })
-          .catch((error)=>{
-            console.log(error)
-          })
-    }
-
 
 
 </script>
@@ -510,8 +411,9 @@ width: 96%;
   text-align: right;
 }
 .mainline{
-width: 96%;
+  width: 96%;
   height: 650px;
+  margin-left:50px ;
 }
 .mb{
   width: 120px;
@@ -523,8 +425,8 @@ width: 96%;
   border-radius: 10px;
 }
 .mb:hover{
-  background-color: #ccc;
-  color: #fff;
+  background-color: rgba(101, 250, 250, 0.53);
+  color: #0c0c0c;
   font-size: 15px;
 
 }
@@ -538,7 +440,7 @@ width: 96%;
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
-  margin-top: 100px;
+  margin-top: 10px;
   background-color: #f4f4f4;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
