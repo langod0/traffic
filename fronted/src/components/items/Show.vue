@@ -314,6 +314,8 @@ button {
   float: left;
   width: 120px;
   /* border: 3px solid blue; */
+  margin-left: 10px;
+    margin-top: 10px;
 }
 .op {
   margin-left: 200px;

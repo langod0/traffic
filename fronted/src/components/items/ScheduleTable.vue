@@ -1,21 +1,27 @@
 <template>
+
+  <div class="sel">
+  请选择日期：
+    <select class="selo" @change="selectValue($event.target.value)">
+      <option v-for="item in tim" :value="item" :key="item">
+            {{ item }}
+          </option>
+    </select>
+    <button @click="look" class="btl">查看</button>
+  </div>
   <div class="schedule-table">
-    <h2>排班表</h2>
+    <h2>{{titl}}排班表</h2>
     <table>
       <thead>
         <tr>
-          <th>时间</th>
-          <th>车辆编号</th>
-          <th>司机</th>
-          <th>路线</th>
+          <th>班次</th>
+          <th>班组号</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(schedule, index) in schedules" :key="index">
-          <td>{{ schedule.time }}</td>
-          <td>{{ schedule.busNo }}</td>
-          <td>{{ schedule.driver }}</td>
-          <td>{{ schedule.route }}</td>
+        <tr v-for="(schedule, index) in tab[Number(nowid)]" :key="index">
+          <td>{{ schedule.shift }}</td>
+          <td>{{ schedule.class }}</td>
         </tr>
       </tbody>
     </table>
@@ -23,23 +29,53 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 
 
 import Child from "@/global";
+const id=ref([{}])
+const tim=ref([])
+const tab=ref([])
+const schtab=ref([])
+const nowid=ref("")
+const dat=ref("")
+const titl=ref("")
+onMounted(()=>{
+    schtab.value=Child.schtb.value
+  for(var i = 0;i<schtab.value.length;i++){
+      tim.value.push(schtab.value[i]["date"])
+      tab.value.push(schtab.value[i]["allot"])
+      id.value[schtab.value[i]["date"]]=i;
+  }
+})
 
-
-
-      const schedules= ref([]);
-      schedules.value= [
-        { time: '08:00', busNo: 'B123', driver: '张三', route: 'A -> B' },
-        // Add more schedules as needed
-      ]
+const look=()=>{
+  nowid.value=dat.value[0]
+  console.log(nowid.value)
+  titl.value=tim.value[nowid.value]
+}
+const selectValue=(e)=>{
+  dat.value=[id.value[e]]
+  console.log(dat.value)
+}
 
 
 </script>
 
 <style scoped>
+.btl{
+  margin-top: 5px;
+  width: 100px;
+  height: 30px;
+  transition: 0.6s;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  margin-left: 5px;
+}
+.btl:hover{
+  background-color: #9acfea;
+}
 .schedule-table {
   max-width: 600px;
   margin: 0 auto;
@@ -47,6 +83,7 @@ import Child from "@/global";
   background-color: #f4f4f4;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
 }
 
 .schedule-table h2 {
@@ -72,5 +109,16 @@ import Child from "@/global";
 
 .schedule-table tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+.sel{
+  float: left;
+  width: 350px;
+  height: 100px;
+  text-align: center;
+}
+.selo{
+  margin-top: 10px;
+  width: 120px;
+  height: 30px;
 }
 </style>

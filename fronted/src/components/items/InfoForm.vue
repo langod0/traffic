@@ -4,6 +4,7 @@
     <label style="margin-left: 20px">已添加的司机：</label>
     <button @click="getuse" class="mb">+</button>
     <button @click="getuse" class="mb">-</button>
+    <label style="margin-left: 20px">司机数：{{nowdr.length}}</label>
 <!--<button @click="getuse" class="mb">+</button>-->
   </div>
 
@@ -34,6 +35,7 @@
   <label style="margin-left: 20px">已添加的列车：</label>
   <button @click="gettrain" class="mb">+</button>
     <button @click="gettrain" class="mb">-</button>
+  <label style="margin-left: 20px">列车数：{{nowcar.length}}</label>
 </div>
 
 <el-dialog v-model="f2" style="margin-top: 200px">
@@ -57,27 +59,24 @@
     </div>
   </div>
   <div  class="mesg" >
-      开始时间：<input type="text" v-model="styear" placeholder="年份"/>年
-    <input type="text" v-model="stmo"  placeholder="月份"/>月
-    <input type="text" v-model="stday" placeholder="日期"/>日<br>
-    结束时间：<input type="text" v-model="edyear" placeholder="年份"/>年
-    <input type="text" v-model="edmo"  placeholder="月份"/>月
-    <input type="text" v-model="edday" placeholder="日期"/>日<br>
-    排班名称：<input type="text" v-model="schname"  placeholder="名称"/><br>
-    选择班型：<select v-model="val" @change="hdv($event)">
+    <div class="nr">
+      开始时间：<input type="text" v-model="styear" placeholder="年份" class="schin"/>年
+    <input type="text" v-model="stmo"  placeholder="月份" class="schin"/>月
+    <input type="text" v-model="stday" placeholder="日期" class="schin"/>日<br>
+    结束时间：<input type="text" v-model="edyear" placeholder="年份" class="schin"/>年
+    <input type="text" v-model="edmo"  placeholder="月份" class="schin"/>月
+    <input type="text" v-model="edday" placeholder="日期" class="schin"/>日<br>
+    排班名称：<input type="text" v-model="schname"  placeholder="名称" class="schin"/><br>
+    选择班型：<select v-model="val" @change="hdv($event)" class="schin">
       <option value="1">四班二倒</option>
     <option value="3">四班三倒</option>
     <option value="2">三班二倒</option>
-  </select>
-
-
-  </div>
-  <div class="btv">
-  <button class="btf" @click="sch">
+  </select><br>
+<button class="btf" @click="sch" >
     排班
   </button>
-
-    </div>
+</div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -109,6 +108,8 @@ const edday=ref("")
 const bx=ref("")
 const val=ref("")
 const schname=ref("")
+const nowdrid=ref([])
+const nowcarid=ref([])
 interface Option {
   key: number;
   label: string;
@@ -156,18 +157,15 @@ const filterMethod = (query, item) => {
 const filterMethod1 = (query, item) => {
   return item.initial.toLowerCase().includes(query.toLowerCase());
 };
-
-
-
 const dradd=()=>{
   nowdr.value=[]
+  nowdrid.value=[]
   f1.value=false;
   for(var i=0;i<values.value.length;i++){
     console.log(values.value[i])
     nowdr.value.push(users.value[values.value[i]])
-
+    nowdrid.value.push(values.value[i]);
   }
-
 }
 
 const hdv=(e)=>{
@@ -176,10 +174,13 @@ console.log(val.value)
 }
 const caradd=()=>{
   nowcar.value=[]
+  nowcarid.value=[]
   f2.value=false;
   for(var i=0;i<values1.value.length;i++){
     console.log(values1.value[i])
     nowcar.value.push(train.value[values1.value[i]])
+    nowcarid.value.push(values1.value[i])
+
   }
 
 }
@@ -210,10 +211,12 @@ const sch=()=>{
   console.log(postdr.value)
   console.log(postcar.value)
   console.log(val.value)
-  axios.post("goapi/api/calcschedule",{"name":schname.value,"startTime":styear+"-"+stmo.value+"-"+stday.value,"endTime":edyear.value+"-"+edmo.value+"-"+edday.value,"type":String(val.value),"drivers":postdr.value,"trains":postcar.value},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+  console.log()
+  axios.post("goapi/api/calcschedule",{"name":schname.value,"startTime":styear.value+"-"+stmo.value+"-"+stday.value,"endTime":edyear.value+"-"+edmo.value+"-"+edday.value,"type":String(val.value),"drivers":postdr.value,"trains":postcar.value},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-              alert("成功")
+              Child.schtb.value=response.data.schedule;
+              alert("创建成功！请前往查看！")
             }else{
               alert(response.data.error)
             }
@@ -221,10 +224,12 @@ const sch=()=>{
           .catch((error)=>{
             console.log(error)
           })
+  console.log(Child.schtb.value)
 }
 
 const gettrain=()=>{
   f2.value=true
+  values1.value=nowcarid.value
       trainid.value=[];
       axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
@@ -247,6 +252,7 @@ const gettrain=()=>{
           })
     }
     const getuse=()=>{
+      values.value=nowdrid.value
       f1.value=true;
       staff.value=[];
       name.value=[];
@@ -279,18 +285,30 @@ const gettrain=()=>{
 </script>
 
 <style scoped>
+.schin{
+  height: 30px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border-color: #9acfea;
+}
+
+.nr{
+  width: 90%;
+  height: 100%;
+
+}
 .dlog{
   width: 600px;
   height: 600px;
 }
 .mbt{
-  width: 80px;
-  height:28px;
+  width: 70px;
+  height:25px;
   background-color: #cbe3ef;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 17px;
   transition: 0.5S;
 
 }
@@ -299,23 +317,26 @@ const gettrain=()=>{
 }
 .tb{
     height:300px;
-  width: 45%;
+  width: 90%;
+  background-color: white;
+
 }
 .mesg{
-  width:90%;
-  height: 100px;
+  background-color: #ffffff;
+  width:100%;
+  height: 370px;
   float: left;
+  text-align: center;
 
-  margin-left: 5%;
 }
 .btv{
   height: 50px;
   width: 100%;
-  text-align: center;
+  //text-align: center;
   float: left;
 }
 .btf{
-  height: 50px;
+  height: 40px;
   width:130px;
   font-size: 20px;
   border-radius: 15px;
@@ -323,15 +344,17 @@ background-color: #c1d7ea;
   border: none;
   transition: 0.7s;
   cursor: pointer;
+  margin-top: 10px;
 }
 .btf:hover{
   background-color: #238ded;
 
 }
 .man{
-  width:45%;
+  width:49.7%;
   height: 367px;
-margin-left: 5%;
+border: 2px solid #c0c0cf;
+  background-color: white;
   float: left;
 }
 .tran{
@@ -364,7 +387,7 @@ width: 96%;
 }
 .line-menu{
   margin-top: 5px;
-  width: 45%;
+  width: 100%;
   height: 37px;
 
   background-color: white;

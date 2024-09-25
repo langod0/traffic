@@ -228,6 +228,8 @@
   .bs {
     float: left;
     width: 120px;
+    margin-left: 10px;
+    margin-top: 10px;
     /* border: 3px solid blue; */
   }
   .op {

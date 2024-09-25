@@ -19,39 +19,34 @@
             <section class="content-one">
                 <div class="text-box">
                     <div class="cnt">
-                        <h2>标题1</h2>
+                        <h2>Welcome</h2>
                         <p>
-                            一长段很长的描述
+                            欢迎踏入未来出行的便捷之门——地铁智能系统首页。在这里，每一次点击都引领您迈向更加高效、舒适的出行体验。
+
                         </p>
-                        <p>
-                            <a href="#" class="btn">登录</a>
-                        </p>
+
                     </div>
                 </div>
             </section>
             <section class="content-two">
                 <div class="text-box">
                     <div class="cnt">
-                        <h2>标题2</h2>
+                        <h2>智能化</h2>
                         <p>
-                            一长段很长的描述
+                            我们运用了很多的预测算法和排班方案来优化我们的地铁智能系统！
                         </p>
-                        <p>
-                            <a href="#" class="btn">登录</a>
-                        </p>
+
                     </div>
                 </div>
             </section>
             <section class="content-three">
                 <div class="text-box">
                     <div class="cnt">
-                        <h2>标题3</h2>
+                        <h2></h2>
                         <p>
-                            一长段很长的描述
+
                         </p>
-                        <p>
-                            <a href="#" class="btn">登录</a>
-                        </p>
+
                     </div>
                 </div>
             </section>
