@@ -7,7 +7,7 @@
 <!--<button @click="getuse" class="mb">+</button>-->
   </div>
 
-<el-dialog v-model="f1"  width="600px" height="600px">
+<el-dialog v-model="f1"  width="600px"   style="margin-top: 200px">
 <div  class="tran" v-if="f1">
 <el-transfer
     v-model="values"
@@ -36,7 +36,7 @@
     <button @click="gettrain" class="mb">-</button>
 </div>
 
-<el-dialog v-model="f2" class="dlog">
+<el-dialog v-model="f2" style="margin-top: 200px">
 <div  class="tran" v-if="f2">
 <el-transfer
     v-model="values1"
@@ -60,19 +60,35 @@
       开始时间：<input type="text" v-model="styear" placeholder="年份"/>年
     <input type="text" v-model="stmo"  placeholder="月份"/>月
     <input type="text" v-model="stday" placeholder="日期"/>日<br>
+    结束时间：<input type="text" v-model="edyear" placeholder="年份"/>年
+    <input type="text" v-model="edmo"  placeholder="月份"/>月
+    <input type="text" v-model="edday" placeholder="日期"/>日<br>
+    排班名称：<input type="text" v-model="schname"  placeholder="名称"/><br>
+    选择班型：<select v-model="val" @change="hdv($event)">
+      <option value="1">四班二倒</option>
+    <option value="3">四班三倒</option>
+    <option value="2">三班二倒</option>
+  </select>
+
+
   </div>
   <div class="btv">
   <button class="btf" @click="sch">
     排班
   </button>
+
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 import axios, {all} from 'axios';
+
 import router from "@/router/index.js";
 // import {constrast} from "./themes";
+import Child from "@/global";
+const schtable=ref("")
+
   const users=ref("")
 const trainid=ref([])
 const staff=ref([])
@@ -84,6 +100,15 @@ const f1=ref(false);
 const f2=ref(false);
 const nowdr=ref([])
   const nowcar=ref([])
+const styear=ref("")
+const stmo=ref("")
+const stday=ref("")
+const edyear=ref("")
+const edmo=ref("")
+const edday=ref("")
+const bx=ref("")
+const val=ref("")
+const schname=ref("")
 interface Option {
   key: number;
   label: string;
@@ -144,6 +169,11 @@ const dradd=()=>{
   }
 
 }
+
+const hdv=(e)=>{
+  val.value=e.target.value;
+console.log(val.value)
+}
 const caradd=()=>{
   nowcar.value=[]
   f2.value=false;
@@ -157,17 +187,40 @@ const sch=()=>{
 
 
   console.log(nowcar.value)
-  // axios.post("goapi/api/",{},{headers:{'Authorization': localStorage.getItem("Authorization")}})
-  //         .then((response)=>{
-  //           if(response.data.code==1) {
-  //
-  //           }else{
-  //             alert(response.data.error)
-  //           }
-  //         })
-  //         .catch((error)=>{
-  //           console.log(error)
-  //         })
+  if(stmo.value.length==1){
+    stmo.value="0"+stmo.value;
+  }
+  if(stday.value.length==1){
+    stday.value="0"+stday.value;
+  }
+  if(edmo.value.length==1){
+    edmo.value="0"+edmo.value;
+  }
+  if(edday.value.length==1){
+    edday.value="0"+edday.value;
+  }
+  const postdr=ref([])
+  const postcar=ref([])
+  for(var i=0;i<nowdr.value.length;i++){
+    postdr.value.push(String(nowdr.value[i]["staff_id"]));
+  }
+  for(var i=0;i<nowcar.value.length;i++){
+    postcar.value.push(String(nowcar.value[i]["id"]));
+  }
+  console.log(postdr.value)
+  console.log(postcar.value)
+  console.log(val.value)
+  axios.post("goapi/api/calcschedule",{"name":schname.value,"startTime":styear+"-"+stmo.value+"-"+stday.value,"endTime":edyear.value+"-"+edmo.value+"-"+edday.value,"type":String(val.value),"drivers":postdr.value,"trains":postcar.value},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+              alert("成功")
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
 }
 
 const gettrain=()=>{
@@ -231,13 +284,14 @@ const gettrain=()=>{
   height: 600px;
 }
 .mbt{
-  width: 100px;
-  height:50px;
-  background-color: #9acfea;
+  width: 80px;
+  height:28px;
+  background-color: #cbe3ef;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 20px;
+  transition: 0.5S;
 
 }
 .mbt:hover{
@@ -248,10 +302,11 @@ const gettrain=()=>{
   width: 45%;
 }
 .mesg{
-  width:100%;
+  width:90%;
   height: 100px;
   float: left;
-  border: 3px solid #c1d7ea;
+
+  margin-left: 5%;
 }
 .btv{
   height: 50px;

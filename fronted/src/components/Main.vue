@@ -115,6 +115,7 @@ import showvue from './items/Show.vue'
 import prevue from './items/Predata.vue'
 import axios from "axios";
 //地铁滑动
+
 let isSliding = ref(false);
 onMounted(() => {
 setTimeout(() => {
@@ -271,7 +272,7 @@ overflow: hidden;
     height: 90px;
     background-color: transparent;
     transition: all 1s ease-in-out;
-    z-index: 1000;
+    z-index: 10;
 }
 
 .headbar .navbar.slide {
@@ -295,7 +296,7 @@ overflow: hidden;
     height: 85px;
     align-content: center;
     display: flex;
-    z-index: 2000;
+    z-index: 20;
 }
 
 
@@ -312,7 +313,7 @@ overflow: hidden;
     height: 70px;
     display: flex;
     align-content: center;
-    z-index: 4000;
+    z-index: 40;
 }
 
 
@@ -487,7 +488,7 @@ align-items: center;
     transition: all .2s ease-out;
     overflow: hidden;
     margin-right: auto;
-    z-index: 1000;
+    z-index: 10;
 }
 
 .menu-box:hover {

@@ -22,17 +22,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      schedules: [
+<script setup>
+import {ref} from 'vue'
+
+
+import Child from "@/global";
+
+
+
+      const schedules= ref([]);
+      schedules.value= [
         { time: '08:00', busNo: 'B123', driver: '张三', route: 'A -> B' },
         // Add more schedules as needed
       ]
-    };
-  }
-};
+
+
 </script>
 
 <style scoped>
