@@ -352,6 +352,8 @@ func CreateSchedule(c *gin.Context) {
 			"code":  0,
 			"error": "time error",
 		})
+		c.Abort()
+		return
 	}
 	fi, err = time.Parse("2006-01-02", quest.EndTime)
 	if err != nil {
@@ -360,6 +362,8 @@ func CreateSchedule(c *gin.Context) {
 			"code":  0,
 			"error": "time error",
 		})
+		c.Abort()
+		return
 	}
 	res = GenerateSchedule(st.Truncate(time.Hour*24), fi.Truncate(time.Hour*24), quest.Type)
 	jsondata.Schedule = res
