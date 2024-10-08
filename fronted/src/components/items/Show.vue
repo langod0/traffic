@@ -238,29 +238,54 @@ const initChart = () => {
 
   // 配置图表选项
   const options = {
+    backgroundColor:"rgb(2,2,58)",
     title: {
       text: tit.value,
       textStyle: {
-        color: '#000', // 设置标题字体颜色为黑色
+        color: '#dadada', // 设置标题字体颜色为黑色
       },
     },
     tooltip: {
       textStyle: {
-        color: '#000', // 设置标题字体颜色为黑色
+        color: '#cccccc', // 设置标题字体颜色为黑色
       },
     },
     xAxis: {
       data: xdata.value,
+      name:"时间",
+      nameTextStyle: {// 名称样式
+          fontSize: 20,
+          color:'#f4dfdf',
+          fontWeight: 'bold'
+      },
+      splitLine:{//轴网格,在xAxis或yAxis根下
+　　show:true,
+　　lineStyle:{//网格样式
+　　　　color:['#5cbbd1']
+  }
+},
       axisLabel: {
         textStyle: {
-          color: '#000', // 设置 x 轴标签字体颜色为黑色
+          color: '#fdfdfd', // 设置 x 轴标签字体颜色为黑色
         },
       },
     },
     yAxis: {
+      splitLine:{//轴网格,在xAxis或yAxis根下
+　　show:true,
+　　lineStyle:{//网格样式
+　　　　color:['#5cbbd1']
+  }
+},
+      name:"客流量",
+      nameTextStyle: {// 名称样式
+          fontSize: 20,
+          color:'#bdbdbd',
+          fontWeight: 'bold'
+      },
       axisLabel: {
         textStyle: {
-          color: '#000', // 设置 x 轴标签字体颜色为黑色
+          color: '#ffffff', // 设置 x 轴标签字体颜色为黑色
         },
       },
     },
@@ -269,12 +294,31 @@ const initChart = () => {
         type: "line",
         data: ydata.value,
         lineStyle: {
-          width: 8, // 设置线条宽度，值越大线条越粗
-          color: '#FFFFFF',
+          width: 3, // 设置线条宽度，值越大线条越粗
+          color: {
+                  type: 'linear',
+                  x: 0,
+                  y: 0,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [  // 渐变颜色
+                    {
+                      offset: 0,
+                      color: 'red',
+                    },
+                    {
+                      offset: 1,
+                      color: 'Orange',
+                    },
+                  ],
+                  global: false,
+                },
+
+
         },
         itemStyle: {
           
-          color: '#FF0000', // 设置数据点的颜色（可选）
+          color: '#fffb00', // 设置数据点的颜色（可选）
         },
         symbolSize: 10,
       },
