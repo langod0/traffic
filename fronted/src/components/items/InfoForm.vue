@@ -60,12 +60,16 @@
   </div>
   <div  class="mesg" >
     <div class="nr">
-      开始时间：<input type="text" v-model="styear" placeholder="年份" class="schin"/>年
-    <input type="text" v-model="stmo"  placeholder="月份" class="schin"/>月
-    <input type="text" v-model="stday" placeholder="日期" class="schin"/>日<br>
-    结束时间：<input type="text" v-model="edyear" placeholder="年份" class="schin"/>年
-    <input type="text" v-model="edmo"  placeholder="月份" class="schin"/>月
-    <input type="text" v-model="edday" placeholder="日期" class="schin"/>日<br>
+      <el-date-picker
+          v-model="duration"
+          type="datetimerange"
+          @change="debug"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+          format="YYYY-MM-DD"
+          date-format="YYYY/MM/DD"
+      />
+      <br/>
     排班名称：<input type="text" v-model="schname"  placeholder="名称" class="schin"/><br>
     选择班型：<select v-model="val" @change="hdv($event)" class="schin">
       <option value="1">四班二倒</option>
@@ -82,7 +86,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import axios, {all} from 'axios';
-
+import  {formatDateTime} from '@/assets/js/funcs';
 import router from "@/router/index.js";
 // import {constrast} from "./themes";
 import Child from "@/global";
@@ -99,17 +103,13 @@ const f1=ref(false);
 const f2=ref(false);
 const nowdr=ref([])
   const nowcar=ref([])
-const styear=ref("")
-const stmo=ref("")
-const stday=ref("")
-const edyear=ref("")
-const edmo=ref("")
-const edday=ref("")
+const st=ref(''),ed = ref('')
 const bx=ref("")
 const val=ref("")
 const schname=ref("")
 const nowdrid=ref([])
 const nowcarid=ref([])
+const duration = ref('')
 interface Option {
   key: number;
   label: string;
@@ -123,7 +123,8 @@ interface Option1 {
 const data = ref<Option[]>([]);
 const data1 = ref<Option1[]>([]);
 
-
+const debug = ()=>{
+}
 
 
 // 生成 Transfer 所需的数据
@@ -138,7 +139,6 @@ const generateData = () => {
   });
   data.value = result;  // 更新 data
 };
-
 
 const generateData1 = () => {
   const result: Option1[] = [];
@@ -186,20 +186,9 @@ const caradd=()=>{
 }
 const sch=()=>{
 
-
   console.log(nowcar.value)
-  if(stmo.value.length==1){
-    stmo.value="0"+stmo.value;
-  }
-  if(stday.value.length==1){
-    stday.value="0"+stday.value;
-  }
-  if(edmo.value.length==1){
-    edmo.value="0"+edmo.value;
-  }
-  if(edday.value.length==1){
-    edday.value="0"+edday.value;
-  }
+  st.value = formatDateTime(duration.value[0])
+  ed.value = formatDateTime(duration.value[1])
   const postdr=ref([])
   const postcar=ref([])
   for(var i=0;i<nowdr.value.length;i++){
@@ -211,8 +200,8 @@ const sch=()=>{
   console.log(postdr.value)
   console.log(postcar.value)
   console.log(val.value)
-  console.log()
-  axios.post("goapi/api/calcschedule",{"name":schname.value,"startTime":styear.value+"-"+stmo.value+"-"+stday.value,"endTime":edyear.value+"-"+edmo.value+"-"+edday.value,"type":String(val.value),"drivers":postdr.value,"trains":postcar.value},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+  console.log(st.value,ed.value)
+  axios.post("goapi/api/calcschedule",{"name":schname.value,"startTime":st.value,"endTime":ed.value,"type":String(val.value),"drivers":postdr.value,"trains":postcar.value},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
               Child.schtb.value=response.data.schedule;
@@ -295,7 +284,7 @@ const gettrain=()=>{
 .nr{
   width: 90%;
   height: 100%;
-
+  margin-top: 20px;
 }
 .dlog{
   width: 600px;

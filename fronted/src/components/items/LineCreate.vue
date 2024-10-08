@@ -46,8 +46,8 @@
 
       <div class="mainline">
       <el-table :data="trains" stripe height="100%" style="width: 750px"  >
-        <el-table-column prop="id" label="列车编号" width="150"  />
-        <el-table-column prop="line_id" label="所属线路" width="150"   />
+        <el-table-column prop="id" label="列车编号" sortable width="150"  />
+        <el-table-column prop="line_id" label="所属线路" sortable width="150"   />
         <el-table-column prop="capacity" label="载客量" width="150"   />
         <el-table-column width="100">
           <template #default="scope">
@@ -259,6 +259,7 @@ const mapflag=ref(false)
 const stline=ref({})
 let v = 1;
 const activate = ref("1")
+const lineFilter = ref([])
 const handleChange = (newTab)=>{
     if (newTab === '1') {
       ChartInit();
@@ -299,7 +300,6 @@ const ChartInit=()=>{
         fontSize: 36,
       }
     },
-    ss:v^1,
     backgroundColor:'#2d3455',
     legend: {
       data: ['站点数量', '列车数量'], // 图例中展示的标签，和系列名称一致

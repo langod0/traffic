@@ -74,10 +74,7 @@
             </div>
             <dev class="app-main">
                 <div class="main_lines" v-if="main">
-                  <div style="margin-left: 50px;margin-top: 50px;">
-
-                    <h1>欢迎回来，{{user.name}}</h1>
-                  </div>
+                    <board/>
 
                 </div>
                 <div class="main-lines" v-if="islines">
@@ -114,6 +111,7 @@ import mapvue from './items/Map.vue'
 import showvue from './items/Show.vue'
 import prevue from './items/Predata.vue'
 import axios from "axios";
+import Board from "@/components/items/board.vue";
 //地铁滑动
 
 let isSliding = ref(false);
@@ -122,21 +120,7 @@ setTimeout(() => {
     isSliding.value = true;
 }, 1000); // 延迟 1 秒后开始动画
 });
-const user =ref("")
-onMounted(()=>{
-  axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
-      .then((response)=>{
-        if(response.data.code==1) {
-          console.log(response.data.lines)
-          user.value = response.data.user
-        }else{
-          alert(response.data.error)
-        }
-      })
-      .catch((error)=>{
-        console.log(error)
-      })
-})
+
 let main = ref(true);
 let islines = ref(false);
 let istable = ref(false);

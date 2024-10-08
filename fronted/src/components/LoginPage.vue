@@ -5,7 +5,7 @@
     <div class="shell">
         <div
             :class="['container', activeContainer === 'a' ? 'a-container' : 'b-container', activeContainer === 'a' ? 'is-z' : '']">
-            <form @submit.prevent="submitForm()"  class="form">
+            <form @submit.prevent=""  class="form">
                 <h2 class="form_title title">{{ activeContainer === 'a' ? '司机登入账号' : '管理员登入账号' }}</h2>
                 <input type="text" class="form_input" placeholder="邮箱/工号" v-model="email" />
                 <input type="password" class="form_input" placeholder="密码" v-model="password" />
