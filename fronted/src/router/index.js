@@ -45,6 +45,10 @@ const routes = [
     path: '/schedule',
     component: () => import('../components/items/ScheduleTable.vue')
   },
+  {
+    path:'/mapline',
+    component:()=>import('../components/items/Map.vue')
+  }
 ];
 
 const router = createRouter({

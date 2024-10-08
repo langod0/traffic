@@ -3,6 +3,7 @@
 
     <el-tab-pane label="查看线路信息" name="1" >
       <button @click="linevisible = true;" class="mb">创建线路</button>
+      <button @click="mapshow" class="mb">线路查看</button>
       <div class="mainline" style="display: inline-flex">
 
         <el-table :data="lines" stripe height="100%" style="width: 450px;margin-right: 10px;color: #02040f"  >
@@ -21,13 +22,16 @@
     </el-tab-pane>
     <el-tab-pane label="查看站点信息"  name="2" >
       <button @click="stationvisible=true" class="mb">创建站点</button>
-
+<button @click="mapshow" class="mb">线路查看</button>
       <div class="mainline">
-        <el-table :data="stations" stripe height="100%" style="width:750px"  >
+        <el-table :data="stations" stripe height="100%" style="width:950px"  >
           <el-table-column prop="id" label="站点编号" width="150"  />
           <el-table-column prop="lon" label="经度" width="150"   />
           <el-table-column prop="lat" label="纬度" width="150"   />
           <el-table-column prop="name" label="站点名称" width="200"   />
+          <el-table-column  label="线路编号" width="200"   ><template #default="scope">
+             {{fdline(scope.row)}}
+            </template></el-table-column>
           <el-table-column width="100">
             <template #default="scope">
               <el-button  @click="updata2(scope.row)">...</el-button>
@@ -196,10 +200,13 @@
     <el-button
         type="danger"
         size="small"
-        @click="detrain=false,delete2(now)"
+        @click="detrain=false,delete3(now)"
     >
       确定
     </el-button>
+  </el-dialog>
+  <el-dialog v-model="mapflag" width="800px"  style="margin-top: 200px">
+    <mapvue/>
   </el-dialog>
 </template>
 
@@ -210,7 +217,7 @@ import * as echarts from "echarts";
 import axios, {all} from 'axios';
 import router from "@/router/index.js";
 import { InfoFilled } from '@element-plus/icons-vue'
-
+import mapvue from './Map.vue'
 const new_line_name=ref('')
 const lines=ref("")
 const stations=ref("")
@@ -248,6 +255,8 @@ const trData = ref([])
 const StData = ref([])
 const chartVis = ref(true)
 const avaliableTr = ref(0)
+const mapflag=ref(false)
+const stline=ref({})
 let v = 1;
 const activate = ref("1")
 const handleChange = (newTab)=>{
@@ -380,11 +389,15 @@ const refresh = ()=>{
           console.log(response.data.lines)
           lines.value = response.data.lines
           stations.value = response.data.stations
+          for(var i=0;i<stations.value.length;i++){
+            stline.value[stations.value[i]["id"]]="";
+          }
           trains.value = response.data.trains
           user.value = response.data.user
           axios.get("goapi/api/getrelations",{headers:{'Authorization': localStorage.getItem("Authorization")}}).then((response)=>{
               if (response.data.code==1){
                 relations.value = response.data.result
+                console.log(relations.value[0])
                 let mm = new Map()
                 let idx = 0
                 xData.value = []
@@ -404,6 +417,7 @@ const refresh = ()=>{
                     }
                 }
                 for (let i = 0;i< relations.value.length;i++) {
+                  stline.value[relations.value[i]["SubwayStationId"]]=stline.value[relations.value[i]["SubwayStationId"]]+String(relations.value[i]["SubwayLineId"])+" ";
                   if (mm.has(relations.value[i].SubwayLineId)){
                     StData.value[mm.get(relations.value[i].SubwayLineId)]++
                   }
@@ -582,7 +596,14 @@ const  delete3=(e)=>{
           })
     refresh()
   }
+const mapshow=()=>{
+    mapflag.value=true
+    console.log(mapflag.value)
+}
+const fdline=(e)=>{
+  return stline.value[e["id"]]
 
+}
 
 </script>
 
