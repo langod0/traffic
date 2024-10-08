@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 /.vscode/
 /backed/Subway.db
+/backed/djangoProject/env/
+/backed/djangoProject/pyvenv/
+/backed/djangoProject/templates/

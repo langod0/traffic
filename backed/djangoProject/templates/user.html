@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<table border="1">
+    <thead>
+    <tr>
+        <td>账号</td>
+        <td>密码</td>
+        
+        
+        
+    </tr>
+    </thead>
+    <tbody>
+    {% for student in student_queryset %}
+        <tr>
+            <td>{{ student.mz }}</td>
+            <td>{{ student.mm }}</td>
+            
+        </tr>
+    {% endfor %}
+ 
+ 
+    </tbody>
+</table>
+
+</body>
+</html>
