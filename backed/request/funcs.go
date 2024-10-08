@@ -487,6 +487,18 @@ func GetUsers(c *gin.Context) {
 	})
 }
 
+func GetRelations(c *gin.Context) {
+	var lines []SubwayLine
+	Db.Where("line_id != 0").Find(&lines)
+	var result []SubwayStationSubwayline
+	Db.Find(&result)
+	c.JSON(200, gin.H{
+		"code":   1,
+		"result": result,
+	})
+
+}
+
 // 获取个人信息
 func GetInfo(c *gin.Context) {
 	staff_id, is := c.Get("staff_id")
@@ -505,7 +517,7 @@ func GetInfo(c *gin.Context) {
 	var lines []SubwayLine
 	var trains []Train
 	Db.Where("id != 0").Find(&stations)
-	Db.Where("line_id != 0").Find(&lines)
+	Db.Where("line_id != 0").Order("line_id ASC").Find(&lines)
 	Db.Where("id != '无'").Find(&trains)
 	//var schedule ScheduleJson
 	//if acc.ScheduleID != 0 {

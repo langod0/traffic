@@ -1,32 +1,34 @@
 <template>
-  <el-tabs type="border-card" >
+  <el-tabs type="border-card" v-model="activate" style="height: 100%" @tab-change="handleChange"  >
 
-    <el-tab-pane label="查看线路信息" >
-      <button @click="linevisible = true" class="mb">创建线路</button>
-      <div class="mainline">
+    <el-tab-pane label="查看线路信息" name="1" >
+      <button @click="linevisible = true;" class="mb">创建线路</button>
+      <div class="mainline" style="display: inline-flex">
 
-        <el-table :data="lines" height="100%" style="width: 100%"  >
-          <el-table-column prop="line_id" label="Line_id" width="200" ></el-table-column>
-          <el-table-column prop="name" label="Name" width="200"   />
-          <el-table-column >
+        <el-table :data="lines" stripe height="100%" style="width: 450px;margin-right: 10px;color: #02040f"  >
+          <el-table-column prop="line_id" label="线路编号" width="150" ></el-table-column>
+          <el-table-column prop="name" label="线路名称" width="200"   />
+          <el-table-column width="100">
 
             <template #default="scope">
               <el-button  @click="updata1(scope.row)">...</el-button>
             </template>
           </el-table-column>
         </el-table>
+        <div ref="chart" style="width: calc(100% - 450px - 20px);height: 600px;margin-top: 30px;margin-left: 10px" v-if="chartVis"></div>
+
       </div>
     </el-tab-pane>
-    <el-tab-pane label="查看站点信息" >
+    <el-tab-pane label="查看站点信息"  name="2" >
       <button @click="stationvisible=true" class="mb">创建站点</button>
 
       <div class="mainline">
-        <el-table :data="stations" height="100%" style="width: 100%"  >
-          <el-table-column prop="id" label="id" width="200"  />
-          <el-table-column prop="lon" label="longitude" width="200"   />
-          <el-table-column prop="lat" label="latitude" width="200"   />
-          <el-table-column prop="name" label="Name" width="200"   />
-          <el-table-column >
+        <el-table :data="stations" stripe height="100%" style="width:750px"  >
+          <el-table-column prop="id" label="站点编号" width="150"  />
+          <el-table-column prop="lon" label="经度" width="150"   />
+          <el-table-column prop="lat" label="纬度" width="150"   />
+          <el-table-column prop="name" label="站点名称" width="200"   />
+          <el-table-column width="100">
             <template #default="scope">
               <el-button  @click="updata2(scope.row)">...</el-button>
             </template>
@@ -35,15 +37,15 @@
       </div>
     </el-tab-pane>
 
-    <el-tab-pane label="查看列车信息" >
+    <el-tab-pane label="查看列车信息"  name="3" >
       <button @click="trainvisible = true" class="mb">创建列车</button>
 
       <div class="mainline">
-      <el-table :data="trains" height="100%" style="width: 100%"  >
-        <el-table-column prop="id" label="id" width="200"  />
-        <el-table-column prop="line_id" label="line_id" width="200"   />
-        <el-table-column prop="capacity" label="capacity" width="200"   />
-        <el-table-column>
+      <el-table :data="trains" stripe height="100%" style="width: 750px"  >
+        <el-table-column prop="id" label="列车编号" width="150"  />
+        <el-table-column prop="line_id" label="所属线路" width="150"   />
+        <el-table-column prop="capacity" label="载客量" width="150"   />
+        <el-table-column width="100">
           <template #default="scope">
             <el-button  @click="updata3(scope.row)">...</el-button>
           </template>
@@ -202,7 +204,9 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
+import * as echarts from "echarts";
+
 import axios, {all} from 'axios';
 import router from "@/router/index.js";
 import { InfoFilled } from '@element-plus/icons-vue'
@@ -238,31 +242,137 @@ const trainexvisible = ref(false)
 const deline = ref(false)
 const destation = ref(false)
 const detrain = ref(false)
+const relations = ref([])
+const xData = ref([])
+const trData = ref([])
+const StData = ref([])
+const chartVis = ref(true)
+const avaliableTr = ref(0)
+let v = 1;
+const activate = ref("1")
+const handleChange = (newTab)=>{
+    if (newTab === '1') {
+      ChartInit();
+    }
+}
 const updata1=(e)=>{
   lineexvisible.value=true;
-      now.value=e;
+  now.value=e;
     line_id.value=now.value["line_id"]
     line_id.value=Number(line_id.value)
     line_name.value=now.value["name"]
-
 }
-onMounted(()=>{
-  axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
-      .then((response)=>{
-        if(response.data.code==1) {
-          console.log(response.data.lines)
-          lines.value = response.data.lines
-          stations.value = response.data.stations
-          trains.value = response.data.trains
-          user.value = response.data.user
-        }else{
-          alert(response.data.error)
+const labelOption = {
+  show: true,
+  rotate: 0,
+  formatter: (params) => {
+    // 如果值为 0 或 null，则返回空字符串，不显示标签
+    return params.value === 0 || params.value === null ? '0' :`${params.value} `;
+  },
+  fontSize: 16,
+  color: '#FFFFFF',
+  position: 'top',
+  distance: 0,
+  offset: [0, 0],
+  rich: {
+    name: {}
+  }
+};
+let chartInstance = null
+const chart = ref(null)
+const ChartInit=()=>{
+  chartInstance.clear();
+  const options = {
+    title:{
+      text:"线网分析" ,
+      textStyle:{
+        color:'#FFFFFF',
+        fontSize: 36,
+      }
+    },
+    ss:v^1,
+    backgroundColor:'#2d3455',
+    legend: {
+      data: ['站点数量', '列车数量'], // 图例中展示的标签，和系列名称一致
+      top: '5%', // 设置图例的位置，可以调整位置
+      textStyle: {
+        color: '#FFFFFF', // 图例文字颜色
+      },
+    },
+    itemStyle: {
+      barBorderRadius: 5,
+      borderWidth: 1,
+      borderType: 'solid',
+      shadowBlur: 3
+    },
+    xAxis: {
+      data: xData.value,
+      axisLabel: {
+        textStyle: {
+          color: '#FFFFFF', // 设置 x 轴标签字体颜色为黑色
+        },
+      },
+    },
+    yAxis:{
+      axisLabel:{
+        textStyle:{
+          color:'#FFFFFF',
         }
-      })
-      .catch((error)=>{
-        console.log(error)
-      })
-})
+      }
+    },
+    series:[
+        {
+          name: '站点数量',
+          type: 'bar',
+          label: labelOption,
+          emphasis: {
+            focus: 'series'
+          },
+          barWidth:24,
+          data: StData.value,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#fb834b' },
+              { offset: 1, color: '#fed201' }
+            ])
+          }
+        },
+        {
+          name: '列车数量',
+          type: 'bar',
+          barWidth:24,
+          label: labelOption,
+          emphasis: {
+            focus: 'series'
+          },
+          data: trData.value,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#16beaf' },
+              { offset: 1, color: '#6dab63' }
+            ])
+          }
+        }
+    ],
+    graphic: {
+      elements: [
+        {
+          type: 'text', // 添加文本类型的标签
+          left: '75%', // 水平方向的位置
+          top: '5%', // 垂直方向的位置
+          style: {
+            text: avaliableTr.value>0?`有 ${avaliableTr.value} 辆列车空闲 `:'', // 文本内容
+            fontSize: 24,
+            fontWeight: 'bold',
+            fill: 'rgba(231,225,225,0.97)', // 字体颜色
+          }
+        }
+      ]
+    }
+  }
+  chartInstance.setOption(options)
+}
+
 const refresh = ()=>{
   axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
       .then((response)=>{
@@ -272,6 +382,38 @@ const refresh = ()=>{
           stations.value = response.data.stations
           trains.value = response.data.trains
           user.value = response.data.user
+          axios.get("goapi/api/getrelations",{headers:{'Authorization': localStorage.getItem("Authorization")}}).then((response)=>{
+              if (response.data.code==1){
+                relations.value = response.data.result
+                let mm = new Map()
+                let idx = 0
+                xData.value = []
+                for (let i = 0; i < lines.value.length; i++) {
+                  xData.value.push(lines.value[i].name)
+                  mm.set(lines.value[i].line_id,idx)
+                  idx++
+                }
+                avaliableTr.value=0
+                trData.value = new Array(idx).fill(0)
+                StData.value = new Array(idx).fill(0)
+                for (let i = 0; i < trains.value.length; i++) {
+                    if (mm.has(trains.value[i].line_id)){
+                      trData.value[mm.get(trains.value[i].line_id)]++
+                    }else{
+                      avaliableTr.value++
+                    }
+                }
+                for (let i = 0;i< relations.value.length;i++) {
+                  if (mm.has(relations.value[i].SubwayLineId)){
+                    StData.value[mm.get(relations.value[i].SubwayLineId)]++
+                  }
+                }
+                console.log(trData.value,StData.value,mm)
+                  ChartInit()
+              }
+          }).catch((error)=>{
+            console.log(error);
+          })
         }else{
           alert(response.data.error)
         }
@@ -279,11 +421,19 @@ const refresh = ()=>{
       .catch((error)=>{
         console.log(error)
       })
+
 }
+onMounted(()=>{
+  nextTick(()=>{
+    chartInstance = echarts.init(chart.value);
+    refresh()
+  })
+})
 const updatan1=()=>{
      axios.post("goapi/api/updateline",{"line_id":line_id.value,"name":line_name.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
+              refresh()
               alert("更新成功")
             }else{
               alert(response.data.error)
@@ -295,7 +445,8 @@ const updatan2=()=>{
    axios.post("goapi/api/updatestation",{"id":station_id.value,"name":station_name.value,"lon":station_lon.value,"lat":station_lat.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-                alert("更新成功")
+              alert("更新成功")
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -310,6 +461,7 @@ const updatan3=()=>{
           .then((response)=>{
             if(response.data.code==1) {
               alert("更新成功")
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -330,7 +482,7 @@ const updata2=(e)=>{
 }
 const updata3=(e)=>{
   trainexvisible.value=true
-        now.value=e;
+  now.value=e;
   train_id.value=now.value["id"]
   train_line_id.value=now.value["line_id"]
   train_capacity.value=now.value["capacity"]
@@ -341,7 +493,8 @@ const delete1=(e)=>{
       axios.post("goapi/api/updateline",{"line_id":now.value["line_id"],"name":now.value["name"],"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
           .then((response)=>{
             if(response.data.code==1) {
-              // alert("删除成功")
+              alert("删除成功")
+              refresh()
               // getline()
             }else{
               alert(response.data.error)
@@ -356,7 +509,7 @@ const delete2=(e)=>{
           .then((response)=>{
             if(response.data.code==1) {
                 alert("删除成功")
-              getsta()
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -373,7 +526,7 @@ const  delete3=(e)=>{
           .then((response)=>{
             if(response.data.code==1) {
               alert("删除成功")
-              gettrains()
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -389,6 +542,7 @@ const  delete3=(e)=>{
           .then((response)=>{
             if(response.data.code==1) {
               alert("添加成功")
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -403,6 +557,7 @@ const  delete3=(e)=>{
           .then((response)=>{
             if(response.data.code==1) {
               alert("添加成功")
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -417,6 +572,7 @@ const  delete3=(e)=>{
           .then((response)=>{
             if(response.data.code==1) {
               alert("添加成功")
+              refresh()
             }else{
               alert(response.data.error)
             }
@@ -451,17 +607,6 @@ const  delete3=(e)=>{
 
 
 }
-.main{
-  width: 100%;
-  height: 650px;
-}
-.linese{
-  text-align: right;
-}
-.mainlines{
-width: 96%;
-  height: 650px;
-}
 .mb{
   width: 120px;
   height: 40px;
@@ -471,12 +616,9 @@ width: 96%;
   border: none;
   border-radius: 10px
 }
-.linese{
-  text-align: right;
-}
 .mainline{
   width: 96%;
-  height: 650px;
+  height: 800px;
   margin-left:50px ;
 }
 .mb{
@@ -493,12 +635,6 @@ width: 96%;
   color: #0c0c0c;
   font-size: 15px;
 
-}
-.line-menu{
-  margin-top: 20px;
-
-  width: 100%;
-  height: 60px;
 }
 .line-create {
   max-width: 400px;

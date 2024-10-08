@@ -91,6 +91,7 @@ func ServeInit() {
 	Api.POST("/updaterelations", AuthMiddleware(), UpdateRelationship)
 	Api.POST("/updatetrain", AuthMiddleware(), UpdateTrains)
 	Api.GET("/getschedules", AuthMiddleware(), GetSchedules)
+	Api.GET("/getrelations", AuthMiddleware(), GetRelations)
 	go Manager.BroadcastSend()
 	go Manager.Start()
 	go Manager.Quit()

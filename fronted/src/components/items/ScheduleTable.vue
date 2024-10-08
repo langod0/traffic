@@ -1,5 +1,5 @@
 <template>
-
+  <section></section>
   <div class="sel">
   请选择日期：
     <select class="selo" @change="selectValue($event.target.value)">
@@ -8,6 +8,7 @@
           </option>
     </select>
     <button @click="look" class="btl">查看</button>
+    <button @click="" class="btl">导出</button>
   </div>
   <div class="schedule-table">
     <h2>{{titl}}排班表</h2>
@@ -112,7 +113,7 @@ const selectValue=(e)=>{
 }
 .sel{
   float: left;
-  width: 350px;
+  width: 550px;
   height: 100px;
   text-align: center;
 }

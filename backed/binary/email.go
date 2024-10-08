@@ -55,7 +55,7 @@ func RedisInit() *exec.Cmd {
 		return nil
 	}
 	InfoLog.Println("Redis server started successfully.")
-
+	time.Sleep(time.Millisecond * 500)
 	VarifyRdb = redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6380",
 		Password: "", // no password set

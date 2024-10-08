@@ -258,8 +258,8 @@ overflow: hidden;
     bottom: 0;
     width: 100%;
     height: 200px;
-    background-color: black;
-    background: linear-gradient(to top, rgba(13, 13, 13, 0.6) 25%, transparent 100%);
+    background-color: #202a3b;
+    background: linear-gradient(to top, rgb(32, 42, 59) 25%, transparent 100%);
     z-index: -1000;
 }
 
@@ -357,99 +357,6 @@ overflow: hidden;
 }
 
 
-    
-    
-    
-/* nav-content
-.headbar .nav-content{
-    position: absolute;
-    bottom: 0px;
-    width:100%;
-    height: 85px;
-    align-content: center;
-    display: flex;
-    z-index: 2000;
-}
-
-
-.headbar .nav-content img{
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-
-.headbar .nav-content-left{
-    position: relative;
-    left:0;
-    width:200px;
-    height: 70px;
-    display: flex;
-    align-content: center;
-    z-index:4000;
-    background-color: black;
-}
-
-
-.headbar .nav-content-left img{
-    position: relative;
-    top:17px;
-    left:10px;
-}
-
-
-.headbar .nav-content-left .nav-content-rl{
-    color:#fff;
-    position: relative;
-    left:50px;
-    top:30px;
-
-}
-
-
-
-.headbar .nav-content-center{
-    background-color: black;
-    position: relative;
-    left:550px;
-    width:200px;
-    align-content: center;
-}
-
-
-.headbar .nav-content-center span{
-    color: #fff;
-}
-
-
-
-.headbar .nav-content-right{
-    background-color: black;
-    position: relative;
-    left:850px;
-    width:220px;
-    display: flex;
-    align-content: center;
-}
-
-
-.headbar .nav-content-right span{
-    color:#fff;
-    position: relative;
-    left:100px;
-    top:30px;
-}
-
-
-.headbar .nav-content-right img{
-    position: relative;
-    left:130px;
-    top:17px;
-} */
-
-
-
-
-
 
 
 
@@ -472,7 +379,7 @@ overflow: hidden;
 
 #main_div {
 height: 100vh;
-background-color: rgb(11, 12, 29);
+background-color: #f0f0f0;
 display: flex;
 justify-content: center;
 align-items: center;
@@ -481,7 +388,7 @@ align-items: center;
 .menu-box {
     width: 100px;
     height: 100vh;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color:#283446;
     /* border-radius: 30px; */
     box-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
     /* 添加过渡 */
@@ -550,13 +457,13 @@ li> {
 }
 
 li:hover {
-    background-color: #343850;
+    background-color: rgba(255, 255, 255, 0.32);
     cursor: pointer;
 }
 
 li:hover .content,
 li:hover img {
-    color: #fff;
+    color: rgba(89, 69, 162, 0.88);
 }
 
 li:hover img {
@@ -612,9 +519,11 @@ li:hover img {
 
 /* app-main */
 .app-main{
-    height: 740px;
-    width:1370px;
+    height: calc(100% -  20px);
+    width: calc(100% - 120px);
     position: absolute;
+    margin-left: 20px;
+  margin-top: 20px;
     /* border-radius: 30px; */
     top:0px;
     left:100px;

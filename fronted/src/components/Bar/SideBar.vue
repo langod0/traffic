@@ -52,7 +52,7 @@ body {
 
 #main_div {
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0);
     display: flex;
     justify-content: center;
     align-items: center;
