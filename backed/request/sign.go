@@ -53,8 +53,9 @@ func Login(c *gin.Context) {
 			return
 		}
 	}
+	ty := data["usertype"].(string) == "b"
 	isPassword := bcrypt.CompareHashAndPassword([]byte(is.Password), []byte(data["password"].(string)))
-	if isPassword != nil {
+	if isPassword != nil || ty != is.IsAdmin {
 		c.JSON(http.StatusOK, gin.H{
 			"code":  0,
 			"error": "账号或密码错误",

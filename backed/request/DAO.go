@@ -71,7 +71,19 @@ type SubwayStationSubwayline struct {
 	Up   uint `gorm:"type:int;comment:'上行' default:0;" json:"up" binding:"required"`
 	Down uint `gorm:"type:int;comment:'下行' default:0 " json:"down" binding:"required"`
 }
+type Submission struct {
+	ID      uint   `gorm:"type:integer;primary key;index" json:"id" binding:"required"`
+	UserId  string `gorm:"type:varchar(20);index" json:"userid" bingding:"required"`
+	AdminId string `gorm:"type:varchar(20);index" json:"adminid" bingding:"required"`
+	Op      int    `gorm:"type:integer" json:"op" binding:"required"`
+	Data    string `gorm:"type:string" json:"data" bingding:"required"`
+	Done    bool   `gorm:"type:boolean"json:"done" binding:"required"`
+	Message string `gorm:"type:string"json:"message" binding:"required"`
+}
 
+func (a *Submission) TableName() string {
+	return "submission"
+}
 func (a *WorkingSchedule) TableName() string {
 	return "working_schedule"
 }
@@ -113,6 +125,7 @@ func DBInit() {
 	Db.AutoMigrate(&SubwayLine{})
 	Db.AutoMigrate(&SubwayStationSubwayline{})
 	Db.AutoMigrate(&WorkingSchedule{})
+	Db.AutoMigrate(&Submission{})
 	if !Db.Migrator().HasTable(&Account{}) {
 		os.Exit(17)
 	}
@@ -127,5 +140,8 @@ func DBInit() {
 	}
 	if !Db.Migrator().HasTable(&SubwayStationSubwayline{}) {
 		os.Exit(21)
+	}
+	if !Db.Migrator().HasTable(&Submission{}) {
+		os.Exit(22)
 	}
 }

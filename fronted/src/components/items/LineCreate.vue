@@ -283,7 +283,7 @@ const labelOption = {
   color: '#FFFFFF',
   position: 'top',
   distance: 0,
-  offset: [0, 0],
+  offset: [2, 0],
   rich: {
     name: {}
   }
@@ -337,7 +337,7 @@ const ChartInit=()=>{
           emphasis: {
             focus: 'series'
           },
-          barWidth:24,
+          barWidth:20,
           data: StData.value,
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -349,7 +349,7 @@ const ChartInit=()=>{
         {
           name: '列车数量',
           type: 'bar',
-          barWidth:24,
+          barWidth:20,
           label: labelOption,
           emphasis: {
             focus: 'series'

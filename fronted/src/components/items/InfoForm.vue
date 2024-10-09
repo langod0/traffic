@@ -340,7 +340,7 @@ background-color: #c1d7ea;
 
 }
 .man{
-  width:49.7%;
+  width:46.7%;
   height: 367px;
 border: 2px solid #c0c0cf;
   background-color: white;

@@ -99,7 +99,7 @@ const tableData = ref(
 onMounted(()=>{
     schtab.value=tmp
   tim.value.push("无")
-    tim.value.push("2024-9-23")
+    tim.value.push("123")
     tab.value.push(schtab.value)
     id.value[0]=0;
     // tableData.value = data.value.map(item => {

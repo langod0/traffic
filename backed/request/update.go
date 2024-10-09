@@ -1,7 +1,9 @@
 package request
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"log"
 	"main/binary"
 	"net/http"
 )
@@ -25,14 +27,7 @@ func UpdateStation(c *gin.Context) {
 		return
 	}
 	can := val.(bool)
-	if !can {
-		c.JSON(http.StatusForbidden, gin.H{
-			"code":  0,
-			"error": "Insufficient authority",
-		})
-		c.Abort()
-		return
-	}
+
 	var tmp SubwayStation
 	var data QueryStationInfo
 	err := c.BindJSON(&data)
@@ -49,10 +44,39 @@ func UpdateStation(c *gin.Context) {
 	tmp.Lon = *data.Lon
 	tmp.Lat = *data.Lat
 	use := *data.Use
-
+	if !can && use == 0 {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":  0,
+			"error": "Insufficient authority",
+		})
+		c.Abort()
+		return
+	}
+	val, has = c.Get("staff_id")
+	who := val.(string)
 	var station SubwayStation
 	if use == -1 {
 		station.ID = tmp.ID
+		if !can {
+			var sub Submission
+			Db.Last(&sub)
+			sub.Done = false
+			sub.ID++
+			sub.AdminId = ""
+			sub.UserId = who
+			sub.Message = ""
+			sub.Op = -1
+			data, err := json.Marshal(tmp)
+			if err != nil {
+				log.Fatal(err)
+			}
+			sub.Data = string(data)
+			Db.Create(&sub)
+			c.JSON(200, gin.H{
+				"code": 1,
+			})
+			return
+		}
 		if err := Db.Where("id = ?", station.ID).First(&station).Error; err != nil {
 			c.JSON(417, gin.H{
 				"code":  0,
@@ -71,6 +95,26 @@ func UpdateStation(c *gin.Context) {
 		}
 
 	} else if use == 1 {
+		if !can {
+			var sub Submission
+			Db.Last(&sub)
+			sub.Done = false
+			sub.ID++
+			sub.AdminId = ""
+			sub.UserId = who
+			sub.Op = 1
+			sub.Message = ""
+			data, err := json.Marshal(tmp)
+			if err != nil {
+				log.Fatal(err)
+			}
+			sub.Data = string(data)
+			Db.Create(&sub)
+			c.JSON(200, gin.H{
+				"code": 1,
+			})
+			return
+		}
 		Db.Order("id desc").First(&station)
 		station.ID++
 		station.Name = tmp.Name
@@ -104,6 +148,94 @@ func UpdateStation(c *gin.Context) {
 		"stations": stations,
 	})
 	return
+}
+
+func DealSubmission(c *gin.Context) {
+	val, has := c.Get("isadmin")
+	if !has {
+		c.JSON(404, gin.H{
+			"error": "system error",
+			"code":  0,
+		})
+		c.Abort()
+		return
+	}
+	can := val.(bool)
+	if !can {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":  0,
+			"error": "Insufficient authority",
+		})
+		c.Abort()
+		return
+	}
+	val, has = c.Get("staff_id")
+	who := val.(string)
+	var sub Submission
+	var data map[string]interface{}
+	err := c.BindJSON(&data)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":  0,
+			"error": "System error",
+		})
+		c.Abort()
+		return
+	}
+	id := uint(int(data["id"].(float64)))
+	sub.ID = id
+	err = Db.Where("id = ?", sub.ID).First(&sub).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":  0,
+			"error": "Submission not found",
+		})
+		c.Abort()
+		return
+	}
+	sub.AdminId = who
+	if sub.Done {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  1,
+			"error": "Submission already completed",
+		})
+		c.Abort()
+		return
+	}
+
+	sub.Done = true
+	datas := []byte(sub.Data)
+	var next SubwayStation
+	err = json.Unmarshal(datas, &next)
+	if err != nil {
+		sub.Message = "Invalid submission"
+		Db.Save(&sub)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":  0,
+			"error": "system error",
+		})
+		return
+	}
+	if sub.Op == 1 {
+		var tmp SubwayStation
+		Db.Order("id desc").First(&tmp)
+		next.ID = tmp.ID + 1
+		Db.Save(&next)
+		sub.Message = "Accepted"
+	} else {
+		var tmp SubwayStation
+		err = Db.Where("id = ?", next.ID).First(&tmp).Error
+		if err != nil {
+			sub.Message = "Station already deleted or not exist"
+		} else {
+			Db.Delete(&tmp)
+			sub.Message = "Accepted"
+		}
+	}
+	Db.Save(&sub)
+	c.JSON(200, gin.H{
+		"code": 1,
+	})
 }
 
 type QueryLineInfo struct {

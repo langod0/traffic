@@ -507,51 +507,43 @@ func GetInfo(c *gin.Context) {
 			"error":  "invalid token",
 			"status": "0",
 		})
+		c.Abort()
+		return
 	}
 	acc := Account{
 		StaffId: staff_id.(string),
 	}
+	val, has := c.Get("isadmin")
+	if !has {
+		c.JSON(404, gin.H{
+			"code":  0,
+			"error": "invalid token",
+		})
+		c.Abort()
+		return
+	}
+	isadmin := val.(bool)
 	Db.Where("staff_id = ?", acc.StaffId).First(&acc)
 
 	var stations []SubwayStation
 	var lines []SubwayLine
 	var trains []Train
+	var subs []Submission
 	Db.Where("id != 0").Find(&stations)
 	Db.Where("line_id != 0").Order("line_id ASC").Find(&lines)
 	Db.Where("id != '无'").Find(&trains)
-	//var schedule ScheduleJson
-	//if acc.ScheduleID != 0 {
-	//	var tmp WorkingSchedule
-	//	Db.Model(&WorkingSchedule{}).Where("id = ?", acc.ScheduleID).First(&tmp)
-	//	file, err := os.Open("./data/" + tmp.Filename)
-	//	if err != nil {
-	//		binary.DebugLog.Println(err)
-	//		c.JSON(200, gin.H{
-	//			"code":  0,
-	//			"error": "file not found ",
-	//		})
-	//		c.Abort()
-	//		return
-	//	}
-	//	rd := json.NewDecoder(file)
-	//	err = rd.Decode(&schedule)
-	//	if err != nil {
-	//		binary.DebugLog.Println(err)
-	//		c.JSON(200, gin.H{
-	//			"code":  0,
-	//			"error": "system error ",
-	//		})
-	//		c.Abort()
-	//		return
-	//	}
-	//	defer file.Close()
-	//}
+	if isadmin {
+		Db.Find(&subs)
+	} else {
+		Db.Where("user_id = ?", acc.StaffId).Find(&subs)
+	}
 	c.JSON(200, gin.H{
 		"code":     1,
 		"user":     acc,
 		"lines":    lines,
 		"stations": stations,
 		"trains":   trains,
+		"subs":     subs,
 		//"schedule": schedule,
 	})
 }
