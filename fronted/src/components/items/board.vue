@@ -6,7 +6,7 @@
     <br>
     <section style="width: 1000px">
       <el-descriptions
-          title="Width vertical list"
+          title=""
           direction="vertical"
           border
           style="margin-top: 20px"
@@ -28,8 +28,7 @@
         <el-descriptions-item label="Email">
           {{user.email}}
         </el-descriptions-item>
-        <el-descriptions-item label="Address">
-          No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+        <el-descriptions-item label="">
         </el-descriptions-item>
       </el-descriptions>
     </section>
