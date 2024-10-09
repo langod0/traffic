@@ -22,7 +22,7 @@
     </el-tab-pane>
     <el-tab-pane label="查看站点信息"  name="2" >
       <button @click="stationvisible=true" class="mb">创建站点</button>
-<button @click="mapshow" class="mb">线路查看</button>
+<button @click="mapshow" class="mb">站点查看</button>
       <div class="mainline">
         <el-table :data="stations" stripe height="100%" style="width:950px"  >
           <el-table-column prop="id" label="站点编号" width="150"  />
@@ -628,8 +628,6 @@ const fdline=(e)=>{
   height: 30px;
   border-radius: 5px;
   margin-top: 40px;
-
-
 }
 .mb{
   width: 120px;
