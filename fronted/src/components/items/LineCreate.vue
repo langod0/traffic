@@ -383,6 +383,7 @@ const ChartInit=()=>{
 }
 
 const refresh = ()=>{
+stline.value={}
   axios.get("goapi/api/getinfo",{headers:{'Authorization': localStorage.getItem("Authorization")}})
       .then((response)=>{
         if(response.data.code==1) {
@@ -391,6 +392,7 @@ const refresh = ()=>{
           stations.value = response.data.stations
           for(var i=0;i<stations.value.length;i++){
             stline.value[stations.value[i]["id"]]="";
+
           }
           trains.value = response.data.trains
           user.value = response.data.user
@@ -417,6 +419,7 @@ const refresh = ()=>{
                     }
                 }
                 for (let i = 0;i< relations.value.length;i++) {
+                  console.log(stline.value[relations.value[i]["SubwayStationId"]])
                   stline.value[relations.value[i]["SubwayStationId"]]=stline.value[relations.value[i]["SubwayStationId"]]+String(relations.value[i]["SubwayLineId"])+" ";
                   if (mm.has(relations.value[i].SubwayLineId)){
                     StData.value[mm.get(relations.value[i].SubwayLineId)]++
@@ -453,7 +456,7 @@ const updatan1=()=>{
               alert(response.data.error)
             }
           })
-    refresh()
+    // refresh()
 }
 const updatan2=()=>{
    axios.post("goapi/api/updatestation",{"id":station_id.value,"name":station_name.value,"lon":station_lon.value,"lat":station_lat.value,"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -468,7 +471,7 @@ const updatan2=()=>{
           .catch((error)=>{
             console.log(error)
           })
-  refresh()
+  // refresh()
 }
 const updatan3=()=>{
     axios.post("goapi/api/updatetrain",{"id":String(train_id.value),"line_id":Number(train_line_id.value),"cap":Number(train_capacity.value),"use":0},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -483,7 +486,7 @@ const updatan3=()=>{
           .catch((error)=>{
             console.log(error)
           })
-  refresh()
+  // refresh()
 }
 const updata2=(e)=>{
   stationexvisible.value=true
@@ -515,7 +518,7 @@ const delete1=(e)=>{
             }
           })
   lineexvisible.value= false
-  refresh()
+  // refresh()
 }
 const delete2=(e)=>{
       now.value=e;
@@ -532,7 +535,7 @@ const delete2=(e)=>{
             console.log(error)
           })
   stationexvisible.value = false
-  refresh()
+  // refresh()
 }
 const  delete3=(e)=>{
       now.value=e
@@ -549,7 +552,7 @@ const  delete3=(e)=>{
             console.log(error)
           })
   trainexvisible.value = false
-  refresh()
+  // refresh()
 }
   const upline=()=>{
       axios.post("goapi/api/updateline",{"line_id":10000,"name":new_line_name.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -564,7 +567,7 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
-    refresh()
+    // refresh()
   }
   const upstation=()=>{
       axios.post("goapi/api/updatestation",{"id":1000000,"name":new_station_name.value,"lon":new_station_lon.value,"lat":new_station_lat.value,"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -579,7 +582,7 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
-    refresh()
+    // refresh()
   }
   const uptrain=()=>{
       axios.post("goapi/api/updatetrain",{"id":new_train_id.value,"cap":Number(new_train_cap.value),"line_id":Number(new_train_lineid.value),"use":1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -594,13 +597,14 @@ const  delete3=(e)=>{
           .catch((error)=>{
             console.log(error)
           })
-    refresh()
+    // refresh()
   }
 const mapshow=()=>{
     mapflag.value=true
     console.log(mapflag.value)
 }
 const fdline=(e)=>{
+// console.log(stline.value[e["id"]])
   return stline.value[e["id"]]
 
 }
