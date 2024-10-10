@@ -57,6 +57,44 @@
       </el-table>
     </div>
     </el-tab-pane>
+
+
+
+
+
+
+
+
+    <el-tab-pane label="审核申请"  name="4" >
+
+      <div class="mainline">
+        <el-table :data="stationsub" stripe height="100%" style="width:1150px"  >
+          <el-table-column prop="id" label="站点编号" width="150"  />
+          <el-table-column prop="data.lon" label="经度" width="150"   />
+          <el-table-column prop="data.lat" label="纬度" width="150"   />
+          <el-table-column prop="data.name" label="站点名称" width="200"   />
+          <el-table-column  label="线路编号" width="200"   ><template #default="scope">
+             {{fdline(scope.row)}}
+            </template></el-table-column>
+          <el-table-column prop="done" label="状态" width="200"   />
+          <el-table-column width="100">
+            <template #default="scope">
+              <el-button  @click="updata4(scope.row)">...</el-button>
+            </template>
+          </el-table-column>
+
+        </el-table>
+      </div>
+    </el-tab-pane>
+
+
+
+
+
+
+
+
+
   </el-tabs>
     <el-dialog v-model="linevisible" title="创建新线路" width="500">
       <div class="line-create" >
@@ -116,6 +154,31 @@
         <el-button @click="deline = true">删除信息</el-button>
       </div>
     </el-dialog>
+
+
+
+
+
+
+   <el-dialog v-model="stationsubexvisible" title="编辑申请" width="500">
+
+      <div class="line-create">
+        站点编号：<label   class="inp">{{station_id}}</label><br>
+        &nbsp经&nbsp&nbsp&nbsp&nbsp度&nbsp：<label   class="inp">{{station_lon}}</label><br>
+        &nbsp纬&nbsp&nbsp&nbsp&nbsp度&nbsp：<label   class="inp">{{station_lat}}</label><br>
+        站点名称：<label type="text"  class="inp">{{station_name}}</label><br>
+
+        <el-button  @click="destation1=true">审核通过</el-button>
+      </div>
+
+    </el-dialog>
+
+
+
+
+
+
+
     <el-dialog v-model="stationexvisible" title="编辑站点" width="500">
 
       <div class="line-create">
@@ -184,6 +247,34 @@
       确定
     </el-button>
   </el-dialog>
+
+
+
+   <el-dialog v-model="destation1"  width="400" style="margin-top: 400px">
+    <template #header="{ close, titleId, titleClass }">
+      <div class="my-header" style="align-items: center;display: flex;">
+        警告<el-icon :size="30" color="red"><WarnTriangleFilled /></el-icon>
+      </div>
+    </template>
+    <div>
+      <span>
+        确定要审核通过吗？
+      </span>
+    </div>
+    <br>
+    <el-button size="small" @click="destation1=false">取消</el-button>
+    <el-button
+        type="danger"
+        size="small"
+        @click="destation1=false,delete22(now)"
+    >
+      确定
+    </el-button>
+  </el-dialog>
+
+
+
+
   <el-dialog v-model="detrain"  width="400" style="margin-top: 400px">
     <template #header="{ close, titleId, titleClass }">
       <div class="my-header" style="align-items: center;display: flex;">
@@ -218,6 +309,8 @@ import axios, {all} from 'axios';
 import router from "@/router/index.js";
 import { InfoFilled } from '@element-plus/icons-vue'
 import mapvue from './Map.vue'
+const destation1=ref(false)
+const stationsub=ref([])
 const new_line_name=ref('')
 const lines=ref("")
 const stations=ref("")
@@ -230,6 +323,7 @@ const station_id=ref("")
 const station_name=ref("")
 const station_lon=ref("")
 const station_lat=ref("")
+const stationsub_status=ref("");
 const train_id=ref("")
 const train_line_id=ref("")
 const train_capacity=ref("")
@@ -246,6 +340,7 @@ const trainvisible = ref(false)
 const lineexvisible = ref(false)
 const stationexvisible = ref(false)
 const trainexvisible = ref(false)
+const stationsubexvisible=ref(false)
 const deline = ref(false)
 const destation = ref(false)
 const detrain = ref(false)
@@ -390,6 +485,14 @@ stline.value={}
           console.log(response.data.lines)
           lines.value = response.data.lines
           stations.value = response.data.stations
+          stationsub.value=response.data.subs
+          console.log(stationsub.value[0])
+          for(var i=0;i<stationsub.value.length;i++){
+              stationsub.value[i]["data"]=JSON.parse(stationsub.value[i]["data"])
+              if(stationsub.value[i]["done"]==false) stationsub.value[i]["done"]="未审核"
+              else  stationsub.value[i]["done"]="已审核"
+
+          }
           for(var i=0;i<stations.value.length;i++){
             stline.value[stations.value[i]["id"]]="";
 
@@ -537,6 +640,29 @@ const delete2=(e)=>{
   stationexvisible.value = false
   // refresh()
 }
+
+
+
+const delete22=(e)=>{
+      now.value=e;
+       axios.post("goapi/api/dealsub",{"id":Number(now.value["id"])},{headers:{'Authorization': localStorage.getItem("Authorization")}})
+          .then((response)=>{
+            if(response.data.code==1) {
+                alert("审核成功！")
+              refresh()
+            }else{
+              alert(response.data.error)
+            }
+          })
+          .catch((error)=>{
+            console.log(error)
+          })
+  stationexvisible.value = false
+  // refresh()
+}
+
+
+
 const  delete3=(e)=>{
       now.value=e
       axios.post("goapi/api/updatetrain",{"id":String(now.value["id"]),"line_id":Number(now.value["line_id"]),"cap":Number(now.value["capacity"]),"use":-1},{headers:{'Authorization': localStorage.getItem("Authorization")}})
@@ -608,6 +734,34 @@ const fdline=(e)=>{
   return stline.value[e["id"]]
 
 }
+
+
+
+
+const updata4=(e)=>{
+  stationsubexvisible.value=true
+  now.value=e;
+  station_id.value=now.value["id"]
+  station_name.value=now.value["name"]
+  station_lon.value=now.value["lon"]
+  station_lat.value=now.value["lat"]
+  stationsub_status.value=now.value["status"]
+  refresh()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 <style scoped>

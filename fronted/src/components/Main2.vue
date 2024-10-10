@@ -1,10 +1,10 @@
 <template>
-    <div id="app" class="body">
+    <div id="app">
         <div class="headbar">
             <img src="../assets/headbarimg2.png">
             <div class="mask"></div>
             <div :class="['navbar', { 'slide': isSliding }]">
-                <svg 
+                <svg
  xmlns="http://www.w3.org/2000/svg"
  xmlns:xlink="http://www.w3.org/1999/xlink"
  width="4181px" height="113px">
@@ -25,95 +25,114 @@
                 </div>
             </div>
         </div>
+        <div class="maincontent">
+            <div id="main_div">
+                <div class="menu-box">
+                    <div class="emotion-box">
+                        <img src="../assets/笑脸.png" id="emotion1">
+                        <img src="../assets/闭眼.png" id="emotion2">
+                    </div>
+                    <ul class="table">
+                        <li>
+                          <button @click="mains" id="router">
+                            <img src="../assets/首页.png">
+                            <p class="content">首页</p>
+                          </button>
+                        </li>
+                        <li >
+                            <button @click="addLines" id="router">
+                                <img src="../assets/线路.png">
+                                <p class="content">信息查看与提交</p>
+                            </button>
+                        </li>
+                        <li>
+                            <button @click="addTable" id="router">
+                                <img src="../assets/查看.png">
+                                <p class="content">查看排班</p>
+                            </button>
+                        </li>
 
-        <div class="schedule-table">
-            <h2>个人排班表</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>时间</th>
-                        <!-- <th>车辆编号</th> -->
-                        <!-- <th>司机</th> -->
-                        <th>路线</th>
-                        <th>车辆编号</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(schedule, index) in schedules" :key="index">
-                        <td>{{ schedule.time }}</td>
-                        <!-- <td>{{ schedule.busNo }}</td> -->
-                        <!-- <td>{{ schedule.driver }}</td> -->
-                        <td>{{ schedule.route }}</td>
-                    </tr>
-                </tbody>
-            </table>
+
+                    </ul>
+                </div>
+            </div>
+            <dev class="app-main">
+                <div class="main_lines" v-if="main">
+                    <board/>
+
+                </div>
+                <div class="main-lines" v-if="islines">
+                    <linesvue2/>
+                </div>
+
+                <div class="main-table" v-if="istable">
+                    <tablevue/>
+                </div>
+
+            </dev>
         </div>
 
-        <div class="square">
-            <ul>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
-        </div>
-        <div class="circle">
-            <ul>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
-        </div>
 
-    </div>
-</template>
+
+      </div>
+    </template>
 
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import linesvue from './items/LineCreate.vue'
+import linesvue2 from './items/LineCreate2.vue'
 import infovue from './items/InfoForm.vue'
 import tablevue from './items/ScheduleTable.vue'
 import mapvue from './items/Map.vue'
-
+import showvue from './items/Show.vue'
+import prevue from './items/Predata.vue'
+import axios from "axios";
+import Board from "@/components/items/board.vue";
 //地铁滑动
+
 let isSliding = ref(false);
 onMounted(() => {
-    setTimeout(() => {
-        isSliding.value = true;
-    }, 1000); // 延迟 1 秒后开始动画
+setTimeout(() => {
+    isSliding.value = true;
+}, 1000); // 延迟 1 秒后开始动画
 });
 
+let main = ref(true);
 let islines = ref(false);
 let istable = ref(false);
 let isinfo = ref(false);
+let isshow = ref(false);
+let ispre= ref(false);
 //lines组件
-
-function addLines() {
-    islines.value = true;
+function mains(){
+    main.value = true
+    islines.value = false;
     isinfo.value = false;
     istable.value = false;
+    isshow.value = false;
+    ispre.value = false;
     console.log('1');
 }
-
-//lnfo组件
-
-function addInfo() {
-    isinfo.value = true;
-    islines.value = false;
+function addLines(){
+    islines.value = true;
+    main.value = false;
+    isinfo.value = false;
     istable.value = false;
+    isshow.value = false;
+    ispre.value = false;
     console.log('1');
 }
+
 
 //table组件
 
-function addTable() {
+function addTable(){
     istable.value = true;
     isinfo.value = false;
     islines.value = false;
+    main.value = false;
+    isshow.value = false;
+    ispre.value = false;
     console.log('1');
 }
 
@@ -123,7 +142,7 @@ function addTable() {
 
 
 <style scoped>
-* {
+*{
     /* 初始化 取消内外边距*/
     margin: 0;
     padding: 0;
@@ -131,188 +150,26 @@ function addTable() {
     text-decoration: none;
 }
 
-body {
+body{
     /* 溢出隐藏 */
     overflow: hidden;
-    display: block;
-
 }
 
-#app {
-    background: linear-gradient(200deg, #e3c5eb, #a9c1ed);
-}
-
-ul li {
-    position: absolute;
-    border: 1px solid #fff;
-    background-color: #fff;
-    width: 30px;
-    height: 30px;
-    list-style: none;
-    opacity: 0;
-}
-
-.square li {
-    top: 40vh;
-    left: 60vw;
-    /* 执行动画：动画名 时长 线性的 无限次播放 */
-    animation: square 10s linear infinite;
-}
-
-.square li:nth-child(2) {
-    top: 80vh;
-    left: 10vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 2s;
-}
-
-.square li:nth-child(3) {
-    top: 80vh;
-    left: 85vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 4s;
-}
-
-.square li:nth-child(4) {
-    top: 10vh;
-    left: 70vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 6s;
-}
-
-.square li:nth-child(5) {
-    top: 10vh;
-    left: 10vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 8s;
-}
-
-.circle li {
-    bottom: 0;
-    left: 15vw;
-    /* 执行动画 */
-    animation: circle 10s linear infinite;
-}
-
-.circle li:nth-child(2) {
-    left: 35vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 2s;
-}
-
-.circle li:nth-child(3) {
-    left: 55vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 6s;
-}
-
-.circle li:nth-child(4) {
-    left: 75vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 4s;
-}
-
-.circle li:nth-child(5) {
-    left: 90vw;
-    /* 设置动画延迟时间 */
-    animation-delay: 8s;
-}
-
-/* 定义动画 */
-@keyframes square {
-    0% {
-        transform: scale(0) rotateY(0deg);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(5) rotateY(1000deg);
-        opacity: 0;
-    }
-}
-
-@keyframes circle {
-    0% {
-        transform: scale(0) rotateY(0deg);
-        opacity: 1;
-        bottom: 0;
-        border-radius: 0;
-    }
-
-    100% {
-        transform: scale(5) rotateY(1000deg);
-        opacity: 0;
-        bottom: 90vh;
-        border-radius: 50%;
-    }
-}
-
-#app {
-    height: 100vh;
-    width: 100vw;
-    background: linear-gradient(200deg, #e3c5eb, #a9c1ed);
-    margin: 0;
-    padding: 0;
-    z-index: -1;
-}
-
-.body {
+#app{
     height: 100%;
-    width: 100%;
-    background: linear-gradient(200deg, #e3c5eb, #a9c1ed);
-    margin: 0;
-    padding: 0;
+    width:100%;
 }
 
-.schedule-table {
-    width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-    /* 添加相对定位 */
-    top: 220px;
-    /* 确保在 `headbar` 之后 */
-}
-
-.schedule-table h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.schedule-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.schedule-table th,
-.schedule-table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ccc;
-}
-
-.schedule-table th {
-    background-color: #007bff;
-    color: white;
-}
-
-.schedule-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
 
 
 /* headbar */
 .headbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 220px;
-    z-index: 1000;
-    overflow: hidden;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 220px;
+overflow: hidden;
 }
 
 .headbar>img {
@@ -332,8 +189,8 @@ ul li {
     bottom: 0;
     width: 100%;
     height: 200px;
-    background-color: black;
-    background: linear-gradient(to top, rgba(13, 13, 13, 0.6) 25%, transparent 100%);
+    background-color: #202a3b;
+    background: linear-gradient(to top, rgb(32, 42, 59) 25%, transparent 100%);
     z-index: -1000;
 }
 
@@ -346,7 +203,7 @@ ul li {
     height: 90px;
     background-color: transparent;
     transition: all 1s ease-in-out;
-    z-index: 1000;
+    z-index: 10;
 }
 
 .headbar .navbar.slide {
@@ -370,7 +227,7 @@ ul li {
     height: 85px;
     align-content: center;
     display: flex;
-    z-index: 2000;
+    z-index: 20;
 }
 
 
@@ -387,7 +244,7 @@ ul li {
     height: 70px;
     display: flex;
     align-content: center;
-    z-index: 4000;
+    z-index: 40;
 }
 
 
@@ -403,7 +260,7 @@ ul li {
     position: relative;
     left: 50px;
     top: 30px;
-    font-size: 20px;
+    font-size:20px;
 }
 
 
@@ -417,12 +274,9 @@ ul li {
 
 
 .headbar .nav-content-center img {
-    width: 250px;
+    width:250px;
     height: 100px;
 }
-
-
-
 .exit{
     position: relative;
     margin-left:650px ;
@@ -430,97 +284,8 @@ ul li {
     /* border: 3px solid blue; */
 }
 .exit a{
-    color: rgb(0, 0, 0);
+    color: black;
 }
-
-/* nav-content
-.headbar .nav-content{
-    position: absolute;
-    bottom: 0px;
-    width:100%;
-    height: 85px;
-    align-content: center;
-    display: flex;
-    z-index: 2000;
-}
-
-
-.headbar .nav-content img{
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-
-.headbar .nav-content-left{
-    position: relative;
-    left:0;
-    width:200px;
-    height: 70px;
-    display: flex;
-    align-content: center;
-    z-index:4000;
-    background-color: black;
-}
-
-
-.headbar .nav-content-left img{
-    position: relative;
-    top:17px;
-    left:10px;
-}
-
-
-.headbar .nav-content-left .nav-content-rl{
-    color:#fff;
-    position: relative;
-    left:50px;
-    top:30px;
-
-}
-
-
-
-.headbar .nav-content-center{
-    background-color: black;
-    position: relative;
-    left:550px;
-    width:200px;
-    align-content: center;
-}
-
-
-.headbar .nav-content-center span{
-    color: #fff;
-}
-
-
-
-.headbar .nav-content-right{
-    background-color: black;
-    position: relative;
-    left:850px;
-    width:220px;
-    display: flex;
-    align-content: center;
-}
-
-
-.headbar .nav-content-right span{
-    color:#fff;
-    position: relative;
-    left:100px;
-    top:30px;
-}
-
-
-.headbar .nav-content-right img{
-    position: relative;
-    left:130px;
-    top:17px;
-} */
-
-
-
 
 
 
@@ -530,27 +295,170 @@ ul li {
 
 
 /* maincontent */
-.maincontent {
+.maincontent{
     position: absolute;
-    top: 200px;
-    left: 0;
-    width: 100%;
+    top:200px;
+    left:0;
+    width:100%;
     height: 100%;
-    background-color: rgba(0, 0, 0);
+    background-color: rgba(0,0,0);
     z-index: 0;
+}
+
+
+/* sidebar */
+
+#main_div {
+height: 100vh;
+background-color: #f0f0f0;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.menu-box {
+    width: 100px;
+    height: 100vh;
+    background-color:#283446;
+    /* border-radius: 30px; */
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, .3);
+    /* 添加过渡 */
+    transition: all .2s ease-out;
+    overflow: hidden;
+    margin-right: auto;
+    z-index: 10;
+}
+
+.menu-box:hover {
+    width: 200px;
+    /* border-radius: 60px; */
+}
+
+.menu-box:hover>ul>li p {
+    display: block;
+}
+
+.emotion-box {
+    width: 100%;
+    text-align: center;
+    margin: 10px auto;
+}
+
+#emotion1,
+#emotion2 {
+    width: 50px;
+    height: 50px;
+    animation: jitter .3s linear forwards;
+
+}
+
+#emotion2 {
+    display: none;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.menu-box:hover #emotion1 {
+    display: none;
+}
+
+.menu-box:hover #emotion2 {
+    display: block;
+}
+
+ul {
+    width: 100%;
+    height: 75%;
+}
+
+li {
+    list-style: none;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+li> {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    text-decoration: none;
+    user-select: none;
+}
+
+li:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+    cursor: pointer;
+}
+
+li:hover .content,
+li:hover img {
+    color: rgba(89, 69, 162, 0.88);
+}
+
+li:hover img {
+    animation: jitter .3s linear forwards;
+}
+
+.content {
+    display: none;
+    padding-left: 5px;
+    color: #fff;
+    white-space: nowrap;
+    transition: all .2s ease-out;
 }
 
 
 
 
+.table img {
+    width: 30px;
+    height: 30px;
+}
+
+
+.table p{
+    font-size:20px;
+}
+
+#router,#back {
+    background-color: transparent;
+    border:none;
+    display: flex;
+    height: 50px;
+    align-items:center;
+    justify-content: center;
+    margin:20px auto;
+}
+
+
+@keyframes jitter {
+    0% {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    50% {
+        transform: scale(0.8) rotate(-10deg);
+    }
+
+    0% {
+        transform: scale(1.0) rotate(0deg);
+    }
+}
+
+
 /* app-main */
 .app-main{
-     height: 740px;
-    width:1370px;
+    height: 500px;
+    width: calc(100% - 120px);
     position: absolute;
+    margin-left: 20px;
+  margin-top: 20px;
     /* border-radius: 30px; */
     top:0px;
     left:100px;
     background-color: rgba(255, 255, 255, 0.5);
 }
+
 </style>
