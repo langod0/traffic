@@ -36,7 +36,6 @@
         </div>
     </div>
 </template>
-
 <script setup>
 import { ref } from 'vue';
 import axios, {all} from 'axios';
@@ -46,6 +45,9 @@ const email = ref('');
 const password = ref('');
 const dt=ref("")
 
+
+
+// fsdfs?
 const LoginFunc=()=>{
   if (activeContainer.value==='a'){
     axios.post("goapi/api/login",{"staff_id":email.value,"password":password.value,"usertype":activeContainer.value})
